@@ -2,6 +2,7 @@
 
 {% block content %}
 
+<!-- Hero Section -->
 <section class="hero">
 
     <h1>Discover the Best Study Spots at UCSC</h1>
@@ -12,4 +13,57 @@
 
 </section>
 
+<!-- Features Section -->
+<section class="features">
+
+    <h2>Why Use SlugSpots?</h2>
+
+    <!-- feature cards here -->
+    <div class="feature-container">
+        <div class="feature-card">
+            <h3>📸 Student Photos</h3>
+            <p>See what study spots actually look like.</p>
+        </div>
+
+        <div class="feature-card">
+            <h3>⭐ Ratings & Reviews</h3>
+            <p>Find the highest-rated places to study.</p>
+        </div>
+        <div class="feature-card">
+            <h3>🗺️ Interactive Campus Map</h3>
+            <p>Discover new locations across UCSC.</p>
+        </div>
+    </div>
+     
+
+</section>
+
+<!-- Features Study Spots -->
+<section class="featured-study-spots">
+    <h2>Featured Study Spots</h2>
+    <div class="study-spots-container">
+        <div class="study-spot-card">
+            <h3>📚 McHenry Library </h3>
+            <p>⭐ 4.8</p>
+            <div class="study-spot-tags">
+                <!-- make a horizontal list of tags with a gap in between and each of them having their own little container -->
+                <div class="study-spot-tag">Quiet</div>
+                <div class="study-spot-tag">WiFi</div>
+                <div class="study-spot-tag">Outlets</div>
+            </div>
+            <a href="#" class="view-details-btn">View Details</a>
+        </div>
+        
+        <div class="study-spot-card">
+            <h3>🌳 Porter Meadow  </h3>
+            <p>⭐ 4.6</p>
+            <div class="study-spot-tags">
+                <!-- make a horizontal list of tags with a gap in between and each of them having their own little container -->
+                <div class="study-spot-tag">Outdoors</div>
+                <div class="study-spot-tag">Scenic</div>
+            </div>
+            <a href="#" class="view-details-btn">View Details</a>
+        </div>
+    </div>
+</section>
 {% endblock %}
