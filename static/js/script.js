@@ -96,6 +96,23 @@ if (mapElement){
             icon = natureIcon;
         }
         
-        L.marker(spot.coordinates, {icon: icon}).addTo(map).bindPopup(`<b>${spot.name}</b><br>Rating: ${spot.rating}<br>Tags: ${spot.tags.join(" • ")}`);
+        L.marker(spot.coordinates, {icon: icon}).addTo(map).bindPopup(`
+            <div class="spot-popup">
+                <h3>
+                    ${spot.name}
+                </h3>
+
+                <p>
+                    ⭐ ${spot.rating}
+                </p>
+
+            <div class="popup-tags">
+                ${spot.tags.map(tag => `<span>${tag}</span>`).join("")}
+            </div>
+            
+            <button class="popup-button">
+                    View Details
+            </button>
+            </div>`);
     }
 }
