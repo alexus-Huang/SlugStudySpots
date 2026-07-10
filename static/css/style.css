@@ -14,11 +14,19 @@ nav {
     font-weight: bold;
 }
 
+.logo a {
+    color: white;
+    text-decoration: none;
+}
 
 .nav-links a {
     color: white;
     text-decoration: none;
     margin-left: 25px;
+}
+
+.nav-links a:hover {
+    text-decoration: underline;
 }
 
 .hero {
@@ -48,4 +56,8 @@ nav {
 
     text-decoration: none;
     border-radius: 8px;
+}
+
+.button:hover {
+    opacity: 0.8;
 }
