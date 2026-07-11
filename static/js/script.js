@@ -110,23 +110,26 @@ if (mapElement){
             icon = natureIcon;
         }
         
-        L.marker(spot.coordinates, {icon: icon}).addTo(map).bindPopup(`
-            <div class="spot-popup">
-                <h3>
-                    ${spot.name}
-                </h3>
+        const marker = L.marker(spot.coordinates,{icon:icon}).addTo(map);
+        marker.on("click",function(){
+            // show popup
+            document.getElementById("spot-sheet").classList.remove("hidden");
 
-                <p>
-                    ⭐ ${spot.rating}
-                </p>
+            // Update title and rating
+            document.getElementById("spot-title").textContent = spot.name
+            document.getElementById("spot-rating").textContent = `⭐ ${spot.rating}`;
 
-            <div class="popup-tags">
-                ${spot.tags.map(tag => `<span>${tag}</span>`).join("")}
-            </div>
+            // Update tag
+            const tagsContainer = document.getElementById("spot-tags");
+            tagsContainer.innerHTML = "";
 
-            <button class="popup-button">
-                    View Details
-            </button>
-            </div>`);
+            // Add new tags
+            spot.tags.forEach(tag => {
+                tagsContainer.innerHTML += `<span class="study-spot-tag">${tag}</span>`;
+            })
+        })
     }
+    document.getElementById("close-info").addEventListener("click", function () {
+    document.getElementById("spot-sheet").classList.add("hidden");
+});
 }

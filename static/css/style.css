@@ -201,7 +201,55 @@ nav {
     cursor: pointer;
 }
 
-
 .popup-button:hover {
     opacity: 0.8;
+}
+
+/* Spot Info */
+.spot-sheet{
+    position:fixed;
+    bottom:0;
+    left:0;
+    width:100%;
+    height:38vh;
+    background:white;
+    border-top-left-radius:25px;
+    border-top-right-radius:25px;
+    padding:25px;
+    box-sizing:border-box;
+    box-shadow:0 -5px 20px rgba(0,0,0,.2);
+    z-index:1000;
+    overflow-y:auto;
+    transition:transform .3s ease;
+    opacity: 1;
+    transition:transform 0.3s ease, opacity 0.3s ease;
+
+}
+
+.hidden {
+    transform: translateY(110%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.sheet-handle{
+    width:60px;
+    height:6px;
+    background:#ccc;
+    border-radius:20px;
+    margin:0 auto 20px auto;
+
+}
+
+#close-info {
+    float: right;
+    border: none;
+    background: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #555;
+}
+
+#close-info:hover {
+    color: black;
 }
