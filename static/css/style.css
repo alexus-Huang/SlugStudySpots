@@ -175,7 +175,6 @@ nav {
     margin-bottom: 10px;
 }
 
-
 .popup-tags {
     display: flex;
     justify-content: center;
@@ -190,6 +189,7 @@ nav {
     padding: 5px 10px;
     border-radius: 15px;
     font-size: 12px;
+    margin: 10px;
 }
 
 .popup-button {
