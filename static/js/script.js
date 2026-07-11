@@ -2,7 +2,7 @@ const mapElement = document.getElementById('map');
 
 if (mapElement){
     // Center map on UCSC
-    const map = L.map("map").setView([36.9916, -122.0583], 15);
+    const map = L.map("map").setView([36.99701977123666, -122.05963153125727], 15);
 
     // Icons
     const libraryIcon = L.icon({
@@ -80,6 +80,20 @@ if (mapElement){
             rating: 4.5,
             coordinates:[36.989257131680056, -122.06341090148356],
             tags: ["WiFi", "Outlets", "Food","Drinks"]
+        },
+        {
+            name: "Cowell Computer Lab",
+            category: "computer lab",
+            rating: 4.0,
+            coordinates:[36.99694416238935, -122.05509338653381],
+            tags: ["WiFi", "Outlets", "Computers", "Printer","Quiet"]
+        },
+        {
+            name: "Global Village Cafe",
+            category: "cafe",
+            rating: 4.3,
+            coordinates:[36.99610086311118, -122.05949219643405],
+            tags: ["WiFi", "Food","Drinks"]
         }
     ]
 
@@ -109,7 +123,7 @@ if (mapElement){
             <div class="popup-tags">
                 ${spot.tags.map(tag => `<span>${tag}</span>`).join("")}
             </div>
-            
+
             <button class="popup-button">
                     View Details
             </button>
