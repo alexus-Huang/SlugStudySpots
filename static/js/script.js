@@ -45,14 +45,18 @@ if (mapElement){
         category,
         rating,
         coordinates,
-        tags
+        tags,
+        description,
+        images
     ){
         return {
             name,
             category,
             rating,
             coordinates,
-            tags
+            tags,
+            description,
+            images
         };
     }
 
@@ -68,6 +72,11 @@ if (mapElement){
                 "WiFi",
                 "Outlets",
                 "Study Rooms"
+            ],
+            "Large library with plenty of study spaces, including quiet areas and group study rooms. Offers WiFi and outlets throughout the building.",
+            [
+                "/static/images/mchenry1.jpg",
+                "/static/images/mchenry2.jpg"
             ]
         ),
         createStudySpot(
@@ -135,6 +144,7 @@ if (mapElement){
         document.getElementById("spot-sheet").classList.remove("hidden");
         document.getElementById("spot-title") .textContent = spot.name;
         document.getElementById("spot-rating").textContent = `⭐ ${spot.rating}`;
+        document.getElementById("spot-description").textContent = spot.description || "No description available.";
 
         const tagsContainer =document.getElementById("spot-tags");
         tagsContainer.innerHTML = "";
@@ -143,25 +153,32 @@ if (mapElement){
         });
 
     }
+
+    const markers = [];
     // Add one marker to map
-    function addStudySpotToMap(spot){
+    function addStudySpotToMap(spot) {
+
         let icon = libraryIcon;
 
-        if (spot.category === "cafe"){
+        if (spot.category === "cafe") {
             icon = cafeIcon;
         }
-
-        else if (spot.category === "computer lab"){
+        else if (spot.category === "computer lab") {
             icon = computerLabIcon;
         }
-
-        else if (spot.category === "nature"){
+        else if (spot.category === "nature") {
             icon = natureIcon;
         }
 
         const marker = L.marker(spot.coordinates,{icon: icon}).addTo(map);
-        marker.on("click", function(){
+
+        marker.on("click", function () {
             openStudySpot(spot);
+        });
+        
+        markers.push({
+            marker: marker,
+            category: spot.category
         });
 
     }
