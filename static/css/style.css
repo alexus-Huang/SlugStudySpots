@@ -335,3 +335,19 @@ nav {
     background:#003c6c;
     color:white;
 }
+
+/* Images */
+#spot-images{
+    display:flex;
+    gap:15px;
+    margin:20px 0;
+    overflow-x:auto;
+}
+
+.study-spot-image{
+    width:220px;
+    height:140px;
+    object-fit:cover;
+    border-radius:12px;
+    flex-shrink:0;
+}

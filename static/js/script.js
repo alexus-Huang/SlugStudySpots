@@ -1,6 +1,7 @@
 const mapElement = document.getElementById('map');
 
 if (mapElement){
+    let currentSpot = null;
     // Center map on UCSC
     const map = L.map("map").setView(
         [36.99701977123666, -122.05963153125727],
@@ -47,7 +48,8 @@ if (mapElement){
         coordinates,
         tags,
         description,
-        images
+        images,
+        likes
     ){
         return {
             name,
@@ -56,7 +58,8 @@ if (mapElement){
             coordinates,
             tags,
             description,
-            images
+            images,
+            likes
         };
     }
 
@@ -77,7 +80,8 @@ if (mapElement){
             [
                 "/static/images/mchenry1.jpg",
                 "/static/images/mchenry2.jpg"
-            ]
+            ],
+            128
         ),
         createStudySpot(
             "Porter Meadow",
@@ -86,7 +90,13 @@ if (mapElement){
             [36.99482501832458, -122.06770300827198],
             [
                 "Outdoors"
-            ]
+            ],
+            "A beautiful outdoor space with plenty of seating. Perfect for studying on a sunny day.",
+            [
+                "/static/images/porter1.jpg",
+                "/static/images/porter2.jpg"
+            ],
+            120
         ),
         createStudySpot(
             "Science & Engineering Library",
@@ -99,7 +109,13 @@ if (mapElement){
                 "Outlets",
                 "Study Rooms",
                 "Vending Machines"
-            ]
+            ],
+            "Offers a quiet environment with WiFi, outlets, and study rooms. Vending machines are available for snacks and drinks on the second floor.",
+            [
+                "/static/images/sne1.jpg",
+                "/static/images/sne2.jpg"
+            ],
+            115
         ),
         createStudySpot(
             "Oakes Cafe",
@@ -111,7 +127,13 @@ if (mapElement){
                 "Outlets",
                 "Food",
                 "Drinks"
-            ]
+            ],
+            "A cozy cafe located in Oakes College, offering WiFi, outlets, and a variety of food and drinks. Great for studying or taking a break.",
+            [
+                "/static/images/oakes1.jpg",
+                "/static/images/oakes2.jpg"
+            ],
+            100
         ),
         createStudySpot(
             "Cowell Computer Lab",
@@ -124,7 +146,13 @@ if (mapElement){
                 "Computers",
                 "Printer",
                 "Quiet"
-            ]
+            ],
+            "A computer lab located in Cowell College, offering WiFi, outlets, computers, and a printer. A quiet space for focused work.",
+            [
+                "/static/images/cowell1.jpg",
+                "/static/images/cowell2.jpg"
+            ],
+            80
         ),
         createStudySpot(
             "Global Village Cafe",
@@ -135,15 +163,23 @@ if (mapElement){
                 "WiFi",
                 "Food",
                 "Drinks"
-            ]
+            ],
+            "A cafe located in McHenry Library, offering WiFi, food, and drinks. A great spot for studying or socializing.",
+            [
+                "/static/images/globalvillage1.jpg",
+                "/static/images/globalvillage2.jpg"
+            ],
+            120
         )
     ];
 
     // Open bottom sheet
     function openStudySpot(spot){
+        currentSpot = spot;
         document.getElementById("spot-sheet").classList.remove("hidden");
         document.getElementById("spot-title") .textContent = spot.name;
         document.getElementById("spot-rating").textContent = `⭐ ${spot.rating}`;
+        document.getElementById("spot-likes").textContent = `👍 ${spot.likes} Likes`;
         document.getElementById("spot-description").textContent = spot.description || "No description available.";
 
         const tagsContainer =document.getElementById("spot-tags");
@@ -152,6 +188,15 @@ if (mapElement){
             tagsContainer.innerHTML +=`<span class="study-spot-tag">${tag}</span>`;
         });
 
+        // Images
+        const imagesContainer = document.getElementById("spot-images");
+        imagesContainer.innerHTML = "";
+
+        if(spot.images){
+            spot.images.forEach(image =>{
+                imagesContainer.innerHTML += `<img src="${image}" alt="${spot.name} image" class="study-spot-image">`;
+            })
+        }
     }
 
     const markers = [];
