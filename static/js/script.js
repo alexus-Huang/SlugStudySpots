@@ -49,7 +49,8 @@ if (mapElement){
         tags,
         description,
         images,
-        likes
+        likes,
+        reviews
     ){
         return {
             name,
@@ -59,7 +60,8 @@ if (mapElement){
             tags,
             description,
             images,
-            likes
+            likes,
+            reviews
         };
     }
 
@@ -81,7 +83,25 @@ if (mapElement){
                 "/static/images/mchenry1.jpg",
                 "/static/images/mchenry2.jpg"
             ],
-            128
+            128,
+            [
+                {
+                    name: "Alex",
+                    rating : 5,
+                    comment: "Great place to study, very quiet and has all the resources I need."
+                    
+                },
+                {
+                    name: "Jordan",
+                    rating: 4,
+                    comment: "Good library, but can get crowded during finals week."
+                },
+                {
+                    name: "Taylor",
+                    rating: 5,
+                    comment: "Love the study rooms, very helpful for group projects."
+                }
+            ]
         ),
         createStudySpot(
             "Porter Meadow",
@@ -195,6 +215,22 @@ if (mapElement){
         if(spot.images){
             spot.images.forEach(image =>{
                 imagesContainer.innerHTML += `<img src="${image}" alt="${spot.name} image" class="study-spot-image">`;
+            })
+        }
+
+        // Reviews
+        const reviewsContainer = document.getElementById("spot-reviews");
+        reviewsContainer.innerHTML = "";
+
+        if(spot.reviews){
+            spot.reviews.forEach(review =>{
+                reviewsContainer.innerHTML += `
+                <div class ="review-card">
+                    <strong>${review.name}</strong>
+                    <p>${"⭐".repeat(review.rating)}</p>
+                    <p>${review.comment}</p>
+                </div>
+                `
             })
         }
     }

@@ -302,19 +302,12 @@ nav {
 }
 
 /* Tag Filters */
-
 .tag-filter-bar {
-
     display:flex;
-
     justify-content:center;
-
     gap:12px;
-
     flex-wrap:wrap;
-
     margin-bottom:20px;
-
 }
 
 
@@ -350,4 +343,24 @@ nav {
     object-fit:cover;
     border-radius:12px;
     flex-shrink:0;
+}
+
+/* Reviews */
+#spot-reviews{
+    margin-top:25px;
+}
+
+.review-card{
+    background:#f8f8f8;
+    padding:15px;
+    border-radius:12px;
+    margin-bottom:15px;
+}
+
+.review-card strong{
+    color:#003c6c;
+}
+
+.review-card p{
+    margin:6px 0;
 }
