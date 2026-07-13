@@ -191,48 +191,41 @@ if (mapElement){
     });
 
     let selectedTags = [];
+    let selectedCategory = "all";
 
-    function filterMarkers(category){
-        markers.forEach(item => {
-            if (category === "all") {
-                item.marker.addTo(map);
+    function applyFilters(){
+        markers.forEach(item =>{
+            let categoryMatch = true;
+            let tagsMatch = true;
+
+            // Check category
+            if(selectedCategory !== "all"){
+                categoryMatch = item.category === selectedCategory;
             }
 
-            else if (item.category === category) {
-                item.marker.addTo(map);
+            // Check the tags
+            if(selectedTags.length > 0){
+                tagsMatch = selectedTags.every(tag =>{
+                    return item.tags.includes(tag)
+                });
             }
 
-            else {
-                map.removeLayer(item.marker);
-            }
-        });
-    }
-
-    function filterByTags(){
-        markers.forEach(item => {
-            if(selectedTags.length === 0){
-                item.marker.addTo(map);
-                return;
-            }
-
-            const hasAllTags = selectedTags.every(tag =>
-                item.tags.includes(tag)
-            );
-
-            if(hasAllTags){
+            // Show spot on map if its a match
+            if(categoryMatch && tagsMatch){
                 item.marker.addTo(map);
             }
             else{
                 map.removeLayer(item.marker);
             }
-
         });
     }
+
     // Filter Btn Detector
     document.querySelectorAll(".filter-btn").forEach(button =>{
         button.addEventListener("click",function(){
             const category = this.dataset.category;
-            filterMarkers(category)
+            selectedCategory = category;
+            applyFilters();
 
             document.querySelectorAll(".filter-btn").forEach(btn => {
                     btn.classList.remove("active");
@@ -254,7 +247,7 @@ if (mapElement){
                 selectedTags.push(tag);
                 this.classList.add("active");
             }
-            filterByTags();
+            applyFilters();
         });
     });
 }
