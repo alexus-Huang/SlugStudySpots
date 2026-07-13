@@ -175,10 +175,11 @@ if (mapElement){
         marker.on("click", function () {
             openStudySpot(spot);
         });
-        
+
         markers.push({
             marker: marker,
-            category: spot.category
+            category: spot.category,
+            tags: spot.tags
         });
 
     }
@@ -187,5 +188,73 @@ if (mapElement){
     // Close bottom sheet
     document.getElementById("close-info").addEventListener("click", function(){
     document.getElementById("spot-sheet").classList.add("hidden");
+    });
+
+    let selectedTags = [];
+
+    function filterMarkers(category){
+        markers.forEach(item => {
+            if (category === "all") {
+                item.marker.addTo(map);
+            }
+
+            else if (item.category === category) {
+                item.marker.addTo(map);
+            }
+
+            else {
+                map.removeLayer(item.marker);
+            }
+        });
+    }
+
+    function filterByTags(){
+        markers.forEach(item => {
+            if(selectedTags.length === 0){
+                item.marker.addTo(map);
+                return;
+            }
+
+            const hasAllTags = selectedTags.every(tag =>
+                item.tags.includes(tag)
+            );
+
+            if(hasAllTags){
+                item.marker.addTo(map);
+            }
+            else{
+                map.removeLayer(item.marker);
+            }
+
+        });
+    }
+    // Filter Btn Detector
+    document.querySelectorAll(".filter-btn").forEach(button =>{
+        button.addEventListener("click",function(){
+            const category = this.dataset.category;
+            filterMarkers(category)
+
+            document.querySelectorAll(".filter-btn").forEach(btn => {
+                    btn.classList.remove("active");
+                });
+
+            this.classList.add("active")
+        });
+    });
+
+    // Tag Btn Detector
+    document.querySelectorAll(".tag-btn").forEach(button => {
+        button.addEventListener("click", function(){
+            const tag = this.dataset.tag;
+            if(selectedTags.includes(tag)){
+                selectedTags = selectedTags.filter(t => t !== tag);
+                this.classList.remove("active");
+            }
+            else{
+                selectedTags.push(tag);
+                this.classList.add("active");
+            }
+            filterByTags();
+        });
     });
 }

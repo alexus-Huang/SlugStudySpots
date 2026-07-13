@@ -285,3 +285,38 @@ nav {
     background: #003c6c;
     color: white;
 }
+
+/* Tag Filters */
+
+.tag-filter-bar {
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:12px;
+
+    flex-wrap:wrap;
+
+    margin-bottom:20px;
+
+}
+
+
+.tag-btn {
+    padding:8px 15px;
+    border:none;
+    border-radius:20px;
+    background:white;
+    cursor:pointer;
+    box-shadow:0 3px 8px rgba(0,0,0,0.12);
+}
+
+.tag-btn:hover {
+    transform:translateY(-2px);
+}
+
+.tag-btn.active {
+    background:#003c6c;
+    color:white;
+}
