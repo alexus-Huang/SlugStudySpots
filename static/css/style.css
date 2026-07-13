@@ -286,6 +286,21 @@ nav {
     color: white;
 }
 
+#clear-filters {
+    margin-top: 15px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    background-color: #ddd;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+
+#clear-filters:hover {
+    background-color: #bbb;
+}
+
 /* Tag Filters */
 
 .tag-filter-bar {

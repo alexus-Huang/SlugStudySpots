@@ -250,4 +250,25 @@ if (mapElement){
             applyFilters();
         });
     });
+    
+    document.getElementById("clear-filters").addEventListener("click", function(){
+        // Reset category
+        selectedCategory = "all";
+
+        // Reset tags
+        selectedTags = [];
+
+        // Show all spots on map
+        applyFilters();
+
+        document.querySelectorAll(".filter-btn").forEach(btn => {
+            btn.classList.remove("active");
+        });
+
+        document.querySelector('.filter-btn[data-category="all"]').classList.add("active");
+
+        document.querySelectorAll(".tag-btn").forEach(btn => {
+            btn.classList.remove("active");
+        });
+    });
 }
