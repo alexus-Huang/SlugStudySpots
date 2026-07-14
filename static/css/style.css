@@ -329,6 +329,20 @@ nav {
     color:white;
 }
 
+/* Like Button */
+#like-button {
+    background-color:#003c6c;
+    color:white;
+    border:none;
+    padding:10px 20px;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+#like-button:hover {
+    opacity:0.85;
+}
 /* Images */
 #spot-images{
     display:flex;
@@ -363,4 +377,20 @@ nav {
 
 .review-card p{
     margin:6px 0;
+}
+
+/* Direction Button */
+#directions-button{
+    margin-top:20px;
+    background:#003c6c;
+    color:white;
+    border:none;
+    padding:12px 20px;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+#directions-button:hover{
+    opacity:0.85;
 }

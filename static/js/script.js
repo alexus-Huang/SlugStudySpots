@@ -1,7 +1,6 @@
 const mapElement = document.getElementById('map');
 
 if (mapElement){
-    let currentSpot = null;
     // Center map on UCSC
     const map = L.map("map").setView(
         [36.99701977123666, -122.05963153125727],
@@ -116,7 +115,8 @@ if (mapElement){
                 "/static/images/porter1.jpg",
                 "/static/images/porter2.jpg"
             ],
-            120
+            120,
+            []
         ),
         createStudySpot(
             "Science & Engineering Library",
@@ -135,7 +135,8 @@ if (mapElement){
                 "/static/images/sne1.jpg",
                 "/static/images/sne2.jpg"
             ],
-            115
+            115,
+            []
         ),
         createStudySpot(
             "Oakes Cafe",
@@ -153,7 +154,8 @@ if (mapElement){
                 "/static/images/oakes1.jpg",
                 "/static/images/oakes2.jpg"
             ],
-            100
+            100,
+            []
         ),
         createStudySpot(
             "Cowell Computer Lab",
@@ -172,7 +174,8 @@ if (mapElement){
                 "/static/images/cowell1.jpg",
                 "/static/images/cowell2.jpg"
             ],
-            80
+            80,
+            []
         ),
         createStudySpot(
             "Global Village Cafe",
@@ -189,10 +192,15 @@ if (mapElement){
                 "/static/images/globalvillage1.jpg",
                 "/static/images/globalvillage2.jpg"
             ],
-            120
+            120,
+            []
         )
     ];
 
+    let selectedTags = [];
+    let selectedCategory = "all";
+    let currentSpot = null;
+    
     // Open bottom sheet
     function openStudySpot(spot){
         currentSpot = spot;
@@ -271,8 +279,6 @@ if (mapElement){
     document.getElementById("spot-sheet").classList.add("hidden");
     });
 
-    let selectedTags = [];
-    let selectedCategory = "all";
 
     function applyFilters(){
         markers.forEach(item =>{
@@ -351,5 +357,23 @@ if (mapElement){
         document.querySelectorAll(".tag-btn").forEach(btn => {
             btn.classList.remove("active");
         });
+    });
+
+    document.getElementById("like-button").addEventListener("click", function(){
+        if(currentSpot){
+            currentSpot.likes++;
+            document.getElementById("spot-likes").textContent =`👍 ${currentSpot.likes} Likes`;
+        }
+    });
+
+    document.getElementById("directions-button").addEventListener("click", function(){
+        if(currentSpot){
+            const lat = currentSpot.coordinates[0];
+            const lng = currentSpot.coordinates[1];
+            const url =
+            `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+            window.open(url, "_blank");
+        }
+
     });
 }
