@@ -200,7 +200,7 @@ if (mapElement){
     let selectedTags = [];
     let selectedCategory = "all";
     let currentSpot = null;
-    
+
     // Open bottom sheet
     function openStudySpot(spot){
         currentSpot = spot;
@@ -375,5 +375,22 @@ if (mapElement){
             window.open(url, "_blank");
         }
 
+    });
+
+    // Spot Suggestion
+    const suggestModal = document.getElementById("suggest-modal");
+    document.getElementById("suggest-spot-btn").addEventListener("click", function () {
+        suggestModal.classList.add("show");
+    });
+
+    document.getElementById("close-modal").addEventListener("click", function () {
+        suggestModal.classList.remove("show");
+    });
+
+    // Modal Description text box
+    const descriptionBox = document.getElementById("spot-description-input");
+    descriptionBox.addEventListener("input", function(){
+        this.style.height = "auto";
+        this.style.height = this.scrollHeight + "px";
     });
 }

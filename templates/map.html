@@ -39,6 +39,8 @@
 
     </div>
 
+    <button id="suggest-spot-btn">+ Suggest Spot</button>
+
     <div id="map"></div>    
 
     <div id="spot-sheet" class="spot-sheet hidden">
@@ -47,11 +49,20 @@
 
         <button id="close-info">✖</button>
 
-        <h2 id="spot-title"></h2>
+        <div class="spot-header">
 
-        <p id="spot-rating"></p>
+            <h2 id="spot-title"></h2>
 
-        <p id="spot-likes"></p>
+            <button id="directions-button">📍 Directions</button>
+        </div>
+
+        <div class="spot-stats">
+
+            <p id="spot-rating"></p>
+
+            <p id="spot-likes"></p>
+
+        </div>
         <button id="like-button">👍 Like</button>
 
         <div id="spot-tags"></div>
@@ -63,10 +74,37 @@
         <h3>Reviews</h3>
         <div id="spot-reviews"></div>
 
-        <button id="directions-button">🗺️ Get Directions</button>
-
     </div>
 
 </section>
+
+<div id="suggest-modal" class="suggest-modal">
+    <div class="modal-content">
+        <button id="close-modal">✖</button>
+
+        <h2>Suggest a Study Spot</h2>
+
+        <input placeholder="Spot Name">
+
+        <select>
+            <option>Library</option>
+            <option>Cafe</option>
+            <option>Computer Lab</option>
+            <option>Outdoor</option>
+            <option>Other</option>
+        </select>
+
+        <textarea id="spot-description-input" placeholder="Description"></textarea>
+
+        <div class="modal-tags">
+            <button class="modal-tag-btn">WiFi</button>
+            <button class="modal-tag-btn">Quiet</button>
+            <button class="modal-tag-btn">Outlets</button>
+            <button class="modal-tag-btn">Food</button>
+        </div>
+
+        <button id="modal-submit-btn">Submit</button>
+    </div>
+</div>
 
 {% endblock %}
