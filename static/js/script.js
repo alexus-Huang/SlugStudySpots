@@ -385,6 +385,22 @@ if (mapElement){
 
     document.getElementById("close-modal").addEventListener("click", function () {
         suggestModal.classList.remove("show");
+
+        // Reset form fields
+        document.querySelector(".modal-content input").value = "";
+        document.querySelector(".modal-content select").selectedIndex = 0;
+        descriptionBox.value = "";
+        descriptionBox.style.height = "120px";
+        imageUpload.value = "";
+        imagePreview.innerHTML = "";
+        if (this.files.length === 0) {
+            imagePreview.style.display = "none";
+            return;
+        }
+        
+        document.querySelectorAll(".modal-tag-btn").forEach(btn => {
+            btn.classList.remove("active");
+        });
     });
 
     // Modal Description text box
@@ -392,5 +408,24 @@ if (mapElement){
     descriptionBox.addEventListener("input", function(){
         this.style.height = "auto";
         this.style.height = this.scrollHeight + "px";
+    });
+
+    // Image Preview
+    const imageUpload = document.getElementById("spot-images-upload");
+    const imagePreview = document.getElementById("image-preview")
+
+    imageUpload.addEventListener("change", function(){
+        imagePreview.innerHTML = "";
+        imagePreview.style.display = "flex";
+        Array.from(this.files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(event){
+                const img = document.createElement("img");
+                img.src = event.target.result;
+                img.classList.add("preview-image")
+                imagePreview.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        });
     });
 }
