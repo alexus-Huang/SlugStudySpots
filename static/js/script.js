@@ -393,11 +393,7 @@ if (mapElement){
         descriptionBox.style.height = "120px";
         imageUpload.value = "";
         imagePreview.innerHTML = "";
-        if (this.files.length === 0) {
-            imagePreview.style.display = "none";
-            return;
-        }
-        
+        imagePreview.style.display = "none";
         document.querySelectorAll(".modal-tag-btn").forEach(btn => {
             btn.classList.remove("active");
         });
