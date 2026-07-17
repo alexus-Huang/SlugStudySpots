@@ -39,6 +39,28 @@ if (mapElement){
     // Add map tiles
     L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",{attribution: '&copy; OpenStreetMap contributors'}).addTo(map);
 
+    // Let user select location on map
+    map.on("click", function(e){
+
+    if(selectingLocation){
+        selectedCoordinates = [
+            e.latlng.lat,
+            e.latlng.lng
+        ];
+
+        if(tempMarker){
+            map.removeLayer(tempMarker);
+        }
+        tempMarker = L.marker(selectedCoordinates).addTo(map);
+
+        document.getElementById("selected-location").textContent =`📍 Selected: ${selectedCoordinates[0].toFixed(5)}, ${selectedCoordinates[1].toFixed(5)}`;
+
+        selectingLocation = false;
+
+        document.getElementById("suggest-modal").classList.add("show");
+    }
+});
+
     // Create study spot object
     function createStudySpot(
         name,
@@ -200,7 +222,9 @@ if (mapElement){
     let selectedTags = [];
     let selectedCategory = "all";
     let currentSpot = null;
-
+    let selectingLocation = false;
+    let selectedCoordinates = null;
+    let tempMarker = null;
     // Open bottom sheet
     function openStudySpot(spot){
         currentSpot = spot;
@@ -493,5 +517,10 @@ if (mapElement){
             };
             reader.readAsDataURL(file);
         });
+    });
+
+    document.getElementById("select-location-btn").addEventListener("click", function(){
+        selectingLocation = true;
+        document.getElementById("suggest-modal").classList.remove("show");
     });
 }
