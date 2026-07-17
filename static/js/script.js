@@ -222,6 +222,7 @@ if (mapElement){
     let selectedTags = [];
     let selectedCategory = "all";
     let currentSpot = null;
+    let suggestedTags = [];
     let selectingLocation = false;
     let selectedCoordinates = null;
     let tempMarker = null;
@@ -522,5 +523,56 @@ if (mapElement){
     document.getElementById("select-location-btn").addEventListener("click", function(){
         selectingLocation = true;
         document.getElementById("suggest-modal").classList.remove("show");
+    });
+
+    // Selectable Tags in modal
+    document.querySelectorAll(".modal-tag-btn").forEach(button => {
+        button.addEventListener("click", function(){
+            const tag = this.dataset.tag;
+            if(suggestedTags.includes(tag)){
+                suggestedTags = suggestedTags.filter(t => t !== tag);
+                this.classList.remove("active");
+            }
+            else{
+                suggestedTags.push(tag);
+                this.classList.add("active");
+            }
+        });
+    });
+
+    // 
+    document.getElementById("modal-submit-btn").addEventListener("click", function(){
+
+        const name = document.getElementById("spot-name-input").value;
+        const category = document.getElementById("spot-category-input").value;
+        const description = document.getElementById("spot-description-input").value;
+
+
+        if(name === ""){
+            alert("Please enter a spot name");
+            return;
+        }
+
+
+        if(!selectedCoordinates){
+            alert("Please select a location on the map");
+            return;
+        }
+
+
+        const newSpot = createStudySpot(
+            name,
+            category.toLowerCase(),
+            0,
+            selectedCoordinates,
+            suggestedTags,
+            description,
+            [],
+            0,
+            []
+        );
+
+        studySpots.push(newSpot);
+        addStudySpotToMap(newSpot);
     });
 }

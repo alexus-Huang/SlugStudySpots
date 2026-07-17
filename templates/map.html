@@ -86,23 +86,23 @@
 
         <h2>Suggest a Study Spot</h2>
 
-        <input placeholder="Spot Name">
+        <input id="spot-name-input" placeholder="Spot Name">
 
-        <select>
-            <option>Library</option>
-            <option>Cafe</option>
-            <option>Computer Lab</option>
-            <option>Outdoor</option>
-            <option>Other</option>
+        <select id="spot-category-input">
+            <option value="library">Library</option>
+            <option value="cafe">Cafe</option>
+            <option value="computer lab">Computer Lab</option>
+            <option value="nature">Outdoor</option>
+            <option value="other">Other</option>
         </select>
 
         <textarea id="spot-description-input" placeholder="Description"></textarea>
 
         <div class="modal-tags">
-            <button class="modal-tag-btn">WiFi</button>
-            <button class="modal-tag-btn">Quiet</button>
-            <button class="modal-tag-btn">Outlets</button>
-            <button class="modal-tag-btn">Food</button>
+            <button class="modal-tag-btn" data-tag="WiFi">WiFi</button>
+            <button class="modal-tag-btn" data-tag="Quiet">Quiet</button>
+            <button class="modal-tag-btn" data-tag="Outlets">Outlets</button>
+            <button class="modal-tag-btn" data-tag="Food">Food</button>
         </div>
 
         <h3>Upload Photos</h3>
