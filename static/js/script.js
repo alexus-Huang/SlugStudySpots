@@ -383,6 +383,76 @@ if (mapElement){
         suggestModal.classList.add("show");
     });
 
+    // User Review
+    const reviewModal = document.getElementById("review-modal");
+    document.getElementById("write-review-btn").addEventListener("click", function(){
+        if(currentSpot){
+            reviewModal.classList.add("show");
+        }
+    });
+
+    // Close review modal
+    document.getElementById("close-review-modal").addEventListener("click", function(){
+        reviewModal.classList.remove("show");
+
+        document.getElementById("review-comment").value = "";
+        document.getElementById("review-rating").selectedIndex = 0;
+
+    });
+
+    // User Review Submission
+    document.getElementById("submit-review").addEventListener("click", function(){
+        if(!currentSpot){
+            return;
+        }
+
+        const rating = Number(
+            document.getElementById("review-rating").value
+        );
+
+        const comment =
+            document.getElementById("review-comment").value;
+
+        if(comment.trim() === ""){
+            alert("Please write a review before submitting.");
+            return;
+        }
+
+        const newReview = {
+            name: "Guest User",
+            rating: rating,
+            comment: comment
+        };
+
+        // Add review to current spot
+        if(!currentSpot.reviews){
+            currentSpot.reviews = [];
+        }
+
+        currentSpot.reviews.push(newReview);
+
+        // Refresh reviews
+        const reviewsContainer = document.getElementById("spot-reviews");
+        reviewsContainer.innerHTML = "";
+        currentSpot.reviews.forEach(review => {
+            reviewsContainer.innerHTML += `
+                <div class="review-card">
+
+                    <strong>${review.name}</strong>
+
+                    <p>${"⭐".repeat(review.rating)}</p>
+
+                    <p>${review.comment}</p>
+
+                </div>`;
+        });
+        // Close modal
+        reviewModal.classList.remove("show");
+        // Reset fields
+        document.getElementById("review-comment").value = "";
+        document.getElementById("review-rating").selectedIndex = 0;
+    });
+
     document.getElementById("close-modal").addEventListener("click", function () {
         suggestModal.classList.remove("show");
 

@@ -74,6 +74,8 @@
         <h3>Reviews</h3>
         <div id="spot-reviews"></div>
 
+        <button id="write-review-btn">⭐ Write a Review</button>
+
     </div>
 
 </section>
@@ -110,4 +112,25 @@
     </div>
 </div>
 
+
+<!-- User Review -->
+<div id="review-modal" class="suggest-modal">
+    <div class="modal-content">
+        <button id="close-review-modal">✖</button>
+        <h2>Write a Review</h2>
+        <label>Rating</label>
+
+        <select id="review-rating">
+            <option value="5">⭐⭐⭐⭐⭐</option>
+            <option value="4">⭐⭐⭐⭐</option>
+            <option value="3">⭐⭐⭐</option>
+            <option value="2">⭐⭐</option>
+            <option value="1">⭐</option>
+        </select>
+
+        <textarea id="review-comment" placeholder="Share your experience..."></textarea>
+
+        <button id="submit-review">Submit Review</button>
+    </div>
+</div>
 {% endblock %}
