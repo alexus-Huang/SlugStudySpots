@@ -542,23 +542,19 @@ if (mapElement){
 
     // 
     document.getElementById("modal-submit-btn").addEventListener("click", function(){
-
         const name = document.getElementById("spot-name-input").value;
         const category = document.getElementById("spot-category-input").value;
         const description = document.getElementById("spot-description-input").value;
-
 
         if(name === ""){
             alert("Please enter a spot name");
             return;
         }
 
-
         if(!selectedCoordinates){
             alert("Please select a location on the map");
             return;
         }
-
 
         const newSpot = createStudySpot(
             name,
@@ -573,6 +569,46 @@ if (mapElement){
         );
 
         studySpots.push(newSpot);
-        addStudySpotToMap(newSpot);
+        
+        const marker = L.marker(newSpot.coordinates).addTo(map);
+        marker.on("click", function(){
+            openStudySpot(newSpot);
+        });
+
+        markers.push({
+            marker: marker,
+            category: newSpot.category,
+            tags: newSpot.tags
+        });
+        
+        // Close Modal
+        suggestModal.classList.remove("show");
+
+        // Remove the temporary location marker
+        if (tempMarker) {
+            map.removeLayer(tempMarker);
+            tempMarker = null;
+        }
+
+        // Reset form
+        document.getElementById("spot-name-input").value = "";
+        document.getElementById("spot-category-input").selectedIndex = 0;
+        descriptionBox.value = "";
+        descriptionBox.style.height = "120px";
+
+        imageUpload.value = "";
+        imagePreview.innerHTML = "";
+        imagePreview.style.display = "none";
+
+        document.getElementById("selected-location").textContent = "No location selected";
+
+        // Reset selected tags
+        suggestedTags = [];
+        document.querySelectorAll(".modal-tag-btn").forEach(btn => {
+            btn.classList.remove("active");
+        });
+
+        // Reset coordinates
+        selectedCoordinates = null;
     });
 }
