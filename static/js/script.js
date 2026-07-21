@@ -556,41 +556,65 @@ if (mapElement){
             return;
         }
 
-        const newSpot = createStudySpot(
-            name,
-            category.toLowerCase(),
-            0,
-            selectedCoordinates,
-            suggestedTags,
-            description,
-            [],
-            0,
-            []
-        );
+        // snapshot these BEFORE the async call, since they'll get reset
+        // before the fetch response comes back
+        const coordsAtSubmit = selectedCoordinates;
+        const tagsAtSubmit = [...suggestedTags];
 
-        studySpots.push(newSpot);
-        
-        const marker = L.marker(newSpot.coordinates).addTo(map);
-        marker.on("click", function(){
-            openStudySpot(newSpot);
+        fetch("/submit_spot", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                name: name,
+                category: category.toLowerCase(),
+                latitude: coordsAtSubmit[0],
+                longitude: coordsAtSubmit[1],
+                description: description
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data.message);
+            alert(data.message);
+
+            const newSpot = createStudySpot(
+                name,
+                category.toLowerCase(),
+                0,
+                coordsAtSubmit,   // <-- use the snapshot, not the live variable
+                tagsAtSubmit,     // <-- same here
+                description,
+                [],
+                0,
+                []
+            );
+
+            studySpots.push(newSpot);
+
+            const marker = L.marker(newSpot.coordinates).addTo(map);
+            marker.on("click", function(){
+                openStudySpot(newSpot);
+            });
+
+            markers.push({
+                marker: marker,
+                category: newSpot.category,
+                tags: newSpot.tags
+            });
+        })
+        .catch(err => {
+            console.error("Failed to submit spot:", err);
+            alert("Something went wrong submitting your spot.");
         });
 
-        markers.push({
-            marker: marker,
-            category: newSpot.category,
-            tags: newSpot.tags
-        });
-        
         // Close Modal
         suggestModal.classList.remove("show");
 
-        // Remove the temporary location marker
         if (tempMarker) {
             map.removeLayer(tempMarker);
             tempMarker = null;
         }
 
-        // Reset form
         document.getElementById("spot-name-input").value = "";
         document.getElementById("spot-category-input").selectedIndex = 0;
         descriptionBox.value = "";
@@ -602,13 +626,11 @@ if (mapElement){
 
         document.getElementById("selected-location").textContent = "No location selected";
 
-        // Reset selected tags
         suggestedTags = [];
         document.querySelectorAll(".modal-tag-btn").forEach(btn => {
             btn.classList.remove("active");
         });
 
-        // Reset coordinates
         selectedCoordinates = null;
     });
 }
