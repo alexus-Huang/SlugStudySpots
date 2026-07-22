@@ -767,3 +767,9 @@ nav {
 .spot-submission-alert.show{
     opacity: 1;
 }
+
+/* Like */
+#like-button.liked {
+    background-color: #ffe9e9;
+    color: #a30000;
+}

@@ -61,163 +61,20 @@ if (mapElement){
     }
 });
 
-    // Create study spot object
-    function createStudySpot(
-        name,
-        category,
-        rating,
-        coordinates,
-        tags,
-        description,
-        images,
-        likes,
-        reviews
-    ){
-        return {
-            name,
-            category,
-            rating,
-            coordinates,
-            tags,
-            description,
-            images,
-            likes,
-            reviews
-        };
-    }
+    // Study spots now come from the database via /api/spots, not hardcoded data
+    let studySpots = [];
 
-    // Study spot data
-    const studySpots = [
-        createStudySpot(
-            "McHenry Library",
-            "library",
-            4.8,
-            [36.995875743537674, -122.05901523332899],
-            [
-                "Quiet",
-                "WiFi",
-                "Outlets",
-                "Study Rooms"
-            ],
-            "Large library with plenty of study spaces, including quiet areas and group study rooms. Offers WiFi and outlets throughout the building.",
-            [
-                "/static/images/mchenry1.jpg",
-                "/static/images/mchenry2.jpg"
-            ],
-            128,
-            [
-                {
-                    name: "Alex",
-                    rating : 5,
-                    comment: "Great place to study, very quiet and has all the resources I need."
-                    
-                },
-                {
-                    name: "Jordan",
-                    rating: 4,
-                    comment: "Good library, but can get crowded during finals week."
-                },
-                {
-                    name: "Taylor",
-                    rating: 5,
-                    comment: "Love the study rooms, very helpful for group projects."
-                }
-            ]
-        ),
-        createStudySpot(
-            "Porter Meadow",
-            "nature",
-            4.6,
-            [36.99482501832458, -122.06770300827198],
-            [
-                "Outdoors"
-            ],
-            "A beautiful outdoor space with plenty of seating. Perfect for studying on a sunny day.",
-            [
-                "/static/images/porter1.jpg",
-                "/static/images/porter2.jpg"
-            ],
-            120,
-            []
-        ),
-        createStudySpot(
-            "Science & Engineering Library",
-            "library",
-            4.7,
-            [36.99915251483445, -122.06074506216467],
-            [
-                "Quiet",
-                "WiFi",
-                "Outlets",
-                "Study Rooms",
-                "Vending Machines"
-            ],
-            "Offers a quiet environment with WiFi, outlets, and study rooms. Vending machines are available for snacks and drinks on the second floor.",
-            [
-                "/static/images/sne1.jpg",
-                "/static/images/sne2.jpg"
-            ],
-            115,
-            []
-        ),
-        createStudySpot(
-            "Oakes Cafe",
-            "cafe",
-            4.5,
-            [36.989257131680056, -122.06341090148356],
-            [
-                "WiFi",
-                "Outlets",
-                "Food",
-                "Drinks"
-            ],
-            "A cozy cafe located in Oakes College, offering WiFi, outlets, and a variety of food and drinks. Great for studying or taking a break.",
-            [
-                "/static/images/oakes1.jpg",
-                "/static/images/oakes2.jpg"
-            ],
-            100,
-            []
-        ),
-        createStudySpot(
-            "Cowell Computer Lab",
-            "computer lab",
-            4.0,
-            [36.99694416238935, -122.05509338653381],
-            [
-                "WiFi",
-                "Outlets",
-                "Computers",
-                "Printer",
-                "Quiet"
-            ],
-            "A computer lab located in Cowell College, offering WiFi, outlets, computers, and a printer. A quiet space for focused work.",
-            [
-                "/static/images/cowell1.jpg",
-                "/static/images/cowell2.jpg"
-            ],
-            80,
-            []
-        ),
-        createStudySpot(
-            "Global Village Cafe",
-            "cafe",
-            4.3,
-            [36.99610086311118, -122.05949219643405],
-            [
-                "WiFi",
-                "Food",
-                "Drinks"
-            ],
-            "A cafe located in McHenry Library, offering WiFi, food, and drinks. A great spot for studying or socializing.",
-            [
-                "/static/images/globalvillage1.jpg",
-                "/static/images/globalvillage2.jpg"
-            ],
-            120,
-            []
-        )
-    ];
+    function loadSpots() {
+        fetch("/api/spots")
+            .then(response => response.json())
+            .then(data => {
+                studySpots = data;
+                studySpots.forEach(addStudySpotToMap);
+            })
+            .catch(err => {
+                console.error("Failed to load spots:", err);
+            });
+    }
 
     let selectedTags = [];
     let selectedCategory = "all";
@@ -234,6 +91,7 @@ if (mapElement){
         document.getElementById("spot-rating").textContent = `⭐ ${spot.rating}`;
         document.getElementById("spot-likes").textContent = `👍 ${spot.likes} Likes`;
         document.getElementById("spot-description").textContent = spot.description || "No description available.";
+        updateLikeButtonStyle();
 
         const tagsContainer =document.getElementById("spot-tags");
         tagsContainer.innerHTML = "";
@@ -268,6 +126,17 @@ if (mapElement){
         }
     }
 
+    function updateLikeButtonStyle(){
+        const likeButton = document.getElementById("like-button");
+        if(currentSpot && currentSpot.user_has_liked){
+            likeButton.classList.add("liked");
+            likeButton.textContent = "👎 Unlike";
+        } else {
+            likeButton.classList.remove("liked");
+            likeButton.textContent = "👍 Like";
+        }
+    }
+
     function showSpotSubmissionAlert(message) {
         const alertBox = document.getElementById("spot-submission-alert");
         alertBox.textContent = message;
@@ -295,7 +164,7 @@ if (mapElement){
             icon = natureIcon;
         }
 
-        const marker = L.marker(spot.coordinates,{icon: icon}).addTo(map);
+        const marker = L.marker([spot.latitude, spot.longitude], {icon: icon}).addTo(map);
 
         marker.on("click", function () {
             openStudySpot(spot);
@@ -308,8 +177,6 @@ if (mapElement){
         });
 
     }
-    // Create all markers
-    studySpots.forEach(addStudySpotToMap);
     // Close bottom sheet
     document.getElementById("close-info").addEventListener("click", function(){
     document.getElementById("spot-sheet").classList.add("hidden");
@@ -396,16 +263,35 @@ if (mapElement){
     });
 
     document.getElementById("like-button").addEventListener("click", function(){
-        if(currentSpot){
-            currentSpot.likes++;
-            document.getElementById("spot-likes").textContent =`👍 ${currentSpot.likes} Likes`;
+        if(!currentSpot || currentSpot.id === null){
+            return;
         }
+
+        fetch(`/like_spot/${currentSpot.id}`, { method: "POST" })
+            .then(response => {
+                if(response.status === 401){
+                    window.location.href = "/login";
+                    return null;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if(!data) return; // we redirected above, nothing else to do
+                currentSpot.likes = data.likes;
+                currentSpot.user_has_liked = data.liked;
+
+                document.getElementById("spot-likes").textContent = `👍 ${currentSpot.likes} Likes`;
+                updateLikeButtonStyle();
+            })
+            .catch(err => {
+                console.error("Failed to like spot:", err);
+            });
     });
 
     document.getElementById("directions-button").addEventListener("click", function(){
         if(currentSpot){
-            const lat = currentSpot.coordinates[0];
-            const lng = currentSpot.coordinates[1];
+            const lat = currentSpot.latitude;
+            const lng = currentSpot.longitude;
             const url =
             `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
             window.open(url, "_blank");
@@ -580,28 +466,31 @@ if (mapElement){
                 category: category.toLowerCase(),
                 latitude: coordsAtSubmit[0],
                 longitude: coordsAtSubmit[1],
-                description: description
+                description: description,
+                tags: tagsAtSubmit
             })
         })
         .then(response => response.json())
         .then(data => {
             console.log(data.message);
 
-            const newSpot = createStudySpot(
-                name,
-                category.toLowerCase(),
-                0,
-                coordsAtSubmit,   // <-- use the snapshot, not the live variable
-                tagsAtSubmit,     // <-- same here
-                description,
-                [],
-                0,
-                []
-            );
+            const newSpot = {
+                id: null,   // real database id isn't known until the page reloads from /api/spots
+                name: name,
+                category: category.toLowerCase(),
+                rating: 0,
+                latitude: coordsAtSubmit[0],   // <-- use the snapshot, not the live variable
+                longitude: coordsAtSubmit[1],  // <-- same here
+                description: description,
+                tags: tagsAtSubmit,
+                images: [],
+                likes: 0,
+                user_has_liked: false
+            };
 
             studySpots.push(newSpot);
 
-            const marker = L.marker(newSpot.coordinates).addTo(map);
+            const marker = L.marker([newSpot.latitude, newSpot.longitude]).addTo(map);
             marker.on("click", function(){
                 openStudySpot(newSpot);
             });
@@ -643,4 +532,7 @@ if (mapElement){
 
         selectedCoordinates = null;
     });
+
+    // Load real spots from the database and place them on the map
+    loadSpots();
 }

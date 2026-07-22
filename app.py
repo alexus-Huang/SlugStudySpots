@@ -16,6 +16,14 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 
+@login_manager.unauthorized_handler
+def unauthorized():
+    # For fetch()-based API routes, send back JSON instead of an HTML
+    # redirect — a fetch() call can't "navigate" the browser on its own.
+    if request.path.startswith("/like_spot") or request.path.startswith("/submit_spot"):
+        return jsonify({"error": "login_required"}), 401
+    return redirect(url_for('login'))
+
 # Regex
 EMAIL_REGEX = re.compile(r'^[\w.+-]+@[\w-]+\.[a-zA-Z0-9-.]+$')
 USERNAME_REGEX = re.compile(r'^[A-Za-z0-9_]{3,20}$')
@@ -128,18 +136,20 @@ def logout():
 @login_required
 def submit_spot():
     data = request.json  # converts JSON data into a python dictionary
+    tags = data.get("tags", [])  # list of tags sent from the frontend; empty list if none provided
     connection = get_db_connection()
     connection.execute("""
     INSERT INTO study_spots
-    (name, category, latitude, longitude, description)
-    VALUES (?, ?, ?, ?, ?)
+    (name, category, latitude, longitude, description, tags)
+    VALUES (?, ?, ?, ?, ?, ?)
     """,
     (
         data["name"],
         data["category"],
         data["latitude"],
         data["longitude"],
-        data["description"]
+        data["description"],
+        ",".join(tags)  # store tags as one comma-separated string, e.g. "WiFi,Quiet"
     ))
     # ? placeholders protects app from SQL injection attacks
 
@@ -149,6 +159,78 @@ def submit_spot():
     return jsonify({
         "message": "Spot submitted successfully"
     })
+
+@app.route("/api/spots")
+def get_spots():
+    connection = get_db_connection()
+    spots = connection.execute("SELECT * FROM study_spots").fetchall()
+
+    result = []
+    for spot in spots:
+        like_count = connection.execute(
+            "SELECT COUNT(*) FROM likes WHERE spot_id = ?", (spot["id"],)
+        ).fetchone()[0]
+
+        user_has_liked = False
+        if current_user.is_authenticated:
+            liked_row = connection.execute(
+                "SELECT 1 FROM likes WHERE spot_id = ? AND user_id = ?",
+                (spot["id"], current_user.id)
+            ).fetchone()
+            user_has_liked = liked_row is not None
+
+        result.append({
+            "id": spot["id"],
+            "name": spot["name"],
+            "category": spot["category"],
+            "rating": spot["rating"],
+            "latitude": spot["latitude"],
+            "longitude": spot["longitude"],
+            "description": spot["description"],
+            "tags": spot["tags"].split(",") if spot["tags"] else [],
+            "images": spot["images"].split(",") if spot["images"] else [],
+            "likes": like_count,
+            "user_has_liked": user_has_liked
+        })
+
+    connection.close()
+    return jsonify(result)
+
+
+@app.route("/like_spot/<int:spot_id>", methods=["POST"])
+@login_required
+def like_spot(spot_id):
+    connection = get_db_connection()
+
+    existing_like = connection.execute(
+        "SELECT id FROM likes WHERE spot_id = ? AND user_id = ?",
+        (spot_id, current_user.id)
+    ).fetchone()
+
+    if existing_like:
+        # already liked -> remove it (un-like)
+        connection.execute(
+            "DELETE FROM likes WHERE spot_id = ? AND user_id = ?",
+            (spot_id, current_user.id)
+        )
+        liked = False
+    else:
+        # not liked yet -> add it
+        connection.execute(
+            "INSERT INTO likes (spot_id, user_id) VALUES (?, ?)",
+            (spot_id, current_user.id)
+        )
+        liked = True
+
+    connection.commit()
+
+    new_count = connection.execute(
+        "SELECT COUNT(*) FROM likes WHERE spot_id = ?", (spot_id,)
+    ).fetchone()[0]
+
+    connection.close()
+
+    return jsonify({"liked": liked, "likes": new_count})
 
 
 if __name__ == '__main__':

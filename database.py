@@ -26,7 +26,30 @@ def create_database():
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     """)
+
+    try:
+        cursor.execute("ALTER TABLE study_spots ADD COLUMN tags TEXT DEFAULT ''")
+    except sqlite3.OperationalError:
+        pass  # column already exists, nothing to do
+
+    try:
+        cursor.execute("ALTER TABLE study_spots ADD COLUMN images TEXT DEFAULT ''")
+    except sqlite3.OperationalError:
+        pass
+
+    # likes table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS likes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        spot_id INTEGER NOT NULL,
+        user_id INTEGER NOT NULL,
+        UNIQUE(spot_id, user_id),
+        FOREIGN KEY (spot_id) REFERENCES study_spots(id),
+        FOREIGN KEY (user_id) REFERENCES users(id)
+    )
+    """)
+
     conn.commit()
     conn.close()
-
+    
 create_database()
