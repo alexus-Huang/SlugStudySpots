@@ -18,9 +18,8 @@ login_manager.login_view = "login"
 
 @login_manager.unauthorized_handler
 def unauthorized():
-    # For fetch()-based API routes, send back JSON instead of an HTML
     # redirect — a fetch() call can't "navigate" the browser on its own.
-    if request.path.startswith("/like_spot") or request.path.startswith("/submit_spot"):
+    if request.path.startswith("/like_spot") or request.path.startswith("/submit_spot") or request.path.startswith("/submit_review"):
         return jsonify({"error": "login_required"}), 401
     return redirect(url_for('login'))
 
@@ -232,6 +231,55 @@ def like_spot(spot_id):
 
     return jsonify({"liked": liked, "likes": new_count})
 
+@app.route("/api/spots/<int:spot_id>/reviews")
+def get_reviews(spot_id):
+    connection = get_db_connection()
+    reviews = connection.execute("""
+        SELECT reviews.rating, reviews.comment, reviews.created_at, users.username
+        FROM reviews
+        JOIN users ON reviews.user_id = users.id
+        WHERE reviews.spot_id = ?
+        ORDER BY reviews.created_at DESC
+    """, (spot_id,)).fetchall()
+    connection.close()
+
+    result = []
+    for review in reviews:
+        result.append({
+            "username": review["username"],
+            "rating": review["rating"],
+            "comment": review["comment"]
+        })
+
+    return jsonify(result)
+
+# Review Submission
+@app.route("/submit_review/<int:spot_id>", methods=["POST"])
+@login_required
+def submit_review(spot_id):
+    data = request.json
+    rating = data.get("rating")
+    comment = data.get("comment", "").strip()
+
+    if not comment:
+        return jsonify({"error": "Review cannot be empty."}), 400
+
+    if not isinstance(rating, int) or rating < 1 or rating > 5:
+        return jsonify({"error": "Rating must be between 1 and 5."}), 400
+
+    connection = get_db_connection()
+    try:
+        connection.execute(
+            "INSERT INTO reviews (spot_id, user_id, rating, comment) VALUES (?, ?, ?, ?)",
+            (spot_id, current_user.id, rating, comment)
+        )
+        connection.commit()
+    except sqlite3.IntegrityError:
+        connection.close()
+        return jsonify({"error": "You've already reviewed this spot."}), 409
+
+    connection.close()
+    return jsonify({"message": "Review submitted successfully"})
 
 if __name__ == '__main__':
     app.run(debug=True) # set to false or environment variable when deploying

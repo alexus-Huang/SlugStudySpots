@@ -773,3 +773,18 @@ nav {
     background-color: #ffe9e9;
     color: #a30000;
 }
+
+/* Review Alert Styling */
+.review-alert {
+    display: none;
+    background: #ffe9e9;
+    color: #a30000;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.review-alert.show {
+    display: block;
+}

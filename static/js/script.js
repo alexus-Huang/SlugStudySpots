@@ -110,20 +110,7 @@ if (mapElement){
         }
 
         // Reviews
-        const reviewsContainer = document.getElementById("spot-reviews");
-        reviewsContainer.innerHTML = "";
-
-        if(spot.reviews){
-            spot.reviews.forEach(review =>{
-                reviewsContainer.innerHTML += `
-                <div class ="review-card">
-                    <strong>${review.name}</strong>
-                    <p>${"⭐".repeat(review.rating)}</p>
-                    <p>${review.comment}</p>
-                </div>
-                `
-            })
-        }
+        loadReviews(spot.id);
     }
 
     function updateLikeButtonStyle(){
@@ -135,6 +122,43 @@ if (mapElement){
             likeButton.classList.remove("liked");
             likeButton.textContent = "👍 Like";
         }
+    }
+
+    function loadReviews(spotId){
+        const reviewsContainer = document.getElementById("spot-reviews");
+        reviewsContainer.innerHTML = "";
+
+        if(spotId === null){
+            return;
+        }
+
+        fetch(`/api/spots/${spotId}/reviews`)
+            .then(response => response.json())
+            .then(reviews => {
+                reviews.forEach(review => {
+                    reviewsContainer.innerHTML += `
+                    <div class="review-card">
+                        <strong>${review.username}</strong>
+                        <p>${"⭐".repeat(review.rating)}</p>
+                        <p>${review.comment}</p>
+                    </div>
+                    `;
+                });
+            })
+            .catch(err => {
+                console.error("Failed to load reviews:", err);
+            });
+    }
+
+    function showReviewAlert(message){
+        const alertBox = document.getElementById("review-alert");
+        alertBox.textContent = message;
+        alertBox.classList.add("show");
+    }
+
+    function hideReviewAlert(){
+        const alertBox = document.getElementById("review-alert");
+        alertBox.classList.remove("show");
     }
 
     function showSpotSubmissionAlert(message) {
@@ -310,12 +334,14 @@ if (mapElement){
     document.getElementById("write-review-btn").addEventListener("click", function(){
         if(currentSpot){
             reviewModal.classList.add("show");
+            hideReviewAlert();
         }
     });
 
     // Close review modal
     document.getElementById("close-review-modal").addEventListener("click", function(){
         reviewModal.classList.remove("show");
+        hideReviewAlert();
 
         document.getElementById("review-comment").value = "";
         document.getElementById("review-rating").selectedIndex = 0;
@@ -324,55 +350,52 @@ if (mapElement){
 
     // User Review Submission
     document.getElementById("submit-review").addEventListener("click", function(){
-        if(!currentSpot){
+        if(!currentSpot || currentSpot.id === null){
             return;
         }
 
-        const rating = Number(
-            document.getElementById("review-rating").value
-        );
-
-        const comment =
-            document.getElementById("review-comment").value;
+        const rating = Number(document.getElementById("review-rating").value);
+        const comment = document.getElementById("review-comment").value;
 
         if(comment.trim() === ""){
-            alert("Please write a review before submitting.");
+            showReviewAlert("Please write a review before submitting.");
             return;
         }
 
-        const newReview = {
-            name: "Guest User",
-            rating: rating,
-            comment: comment
-        };
+        fetch(`/submit_review/${currentSpot.id}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ rating: rating, comment: comment })
+        })
+            .then(response => {
+                if(response.status === 401){
+                    window.location.href = "/login";
+                    return null;
+                }
+                return response.json().then(data => ({ status: response.status, data: data }));
+            })
+            .then(result => {
+                if(!result) return; // redirected above
 
-        // Add review to current spot
-        if(!currentSpot.reviews){
-            currentSpot.reviews = [];
-        }
+                if(result.status === 409){
+                    showReviewAlert(result.data.error); // "You've already reviewed this spot."
+                    return;
+                }
+                if(result.status === 400){
+                    alert(result.data.error);
+                    return;
+                }
 
-        currentSpot.reviews.push(newReview);
-
-        // Refresh reviews
-        const reviewsContainer = document.getElementById("spot-reviews");
-        reviewsContainer.innerHTML = "";
-        currentSpot.reviews.forEach(review => {
-            reviewsContainer.innerHTML += `
-                <div class="review-card">
-
-                    <strong>${review.name}</strong>
-
-                    <p>${"⭐".repeat(review.rating)}</p>
-
-                    <p>${review.comment}</p>
-
-                </div>`;
-        });
-        // Close modal
-        reviewModal.classList.remove("show");
-        // Reset fields
-        document.getElementById("review-comment").value = "";
-        document.getElementById("review-rating").selectedIndex = 0;
+                // Success — reload reviews from the database and close the modal
+                loadReviews(currentSpot.id);
+                reviewModal.classList.remove("show");
+                hideReviewAlert();
+                document.getElementById("review-comment").value = "";
+                document.getElementById("review-rating").selectedIndex = 0;
+            })
+            .catch(err => {
+                console.error("Failed to submit review:", err);
+            });
     });
 
     document.getElementById("close-modal").addEventListener("click", function () {
