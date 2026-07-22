@@ -152,4 +152,4 @@ def submit_spot():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True) # set to false or environment variable when deploying

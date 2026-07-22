@@ -764,6 +764,6 @@ nav {
     pointer-events: none;
 }
 
-.spot-submission-alert{
+.spot-submission-alert.show{
     opacity: 1;
 }
