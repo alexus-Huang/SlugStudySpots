@@ -1,28 +1,21 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="auth-page">
+  <div class="auth-card">
+    <h1>Login</h1>
 
-<h1>Login</h1>
+    <form method="POST" action="{{ url_for('login') }}" class="auth-form">
+        <label>Email:</label>
+        <input type="email" name="email">
 
-<form>
+        <label>Password:</label>
+        <input type="password" name="password">
 
-    <label>Email:</label>
-    <input type="email">
+        <button type="submit">Login</button>
+    </form>
 
-    <br><br>
-
-    <label>Password:</label>
-    <input type="password">
-
-    <br><br>
-
-    <button type="submit">Login</button>
-
-</form>
-
-<p>
-    Don't have an account?
-    Sign up
-</p>
-
+    <p>Don't have an account? <a href="{{ url_for('signup') }}">Sign up</a></p>
+  </div>
+</div>
 {% endblock %}

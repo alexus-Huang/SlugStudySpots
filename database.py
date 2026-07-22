@@ -1,12 +1,8 @@
 import sqlite3
 
-
 def create_database():
-
     conn = sqlite3.connect("slugspots.db")
-
     cursor = conn.cursor()
-
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS study_spots (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -20,6 +16,16 @@ def create_database():
     )
     """)
 
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL UNIQUE,
+        email TEXT NOT NULL UNIQUE,
+        password_hash TEXT NOT NULL,
+        points INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
     conn.commit()
     conn.close()
 

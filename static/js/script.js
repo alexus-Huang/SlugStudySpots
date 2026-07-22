@@ -268,6 +268,17 @@ if (mapElement){
         }
     }
 
+    function showSpotSubmissionAlert(message) {
+        const alertBox = document.getElementById("spot-submission-alert");
+        alertBox.textContent = message;
+        alertBox.classList.add("show");
+
+        setTimeout(() => {
+            alertBox.classList.remove("show");
+        }, 3000);
+    }
+
+    
     const markers = [];
     // Add one marker to map
     function addStudySpotToMap(spot) {
@@ -575,7 +586,6 @@ if (mapElement){
         .then(response => response.json())
         .then(data => {
             console.log(data.message);
-            alert(data.message);
 
             const newSpot = createStudySpot(
                 name,
@@ -604,7 +614,7 @@ if (mapElement){
         })
         .catch(err => {
             console.error("Failed to submit spot:", err);
-            alert("Something went wrong submitting your spot.");
+            showSpotSubmissionAlert("Something went wrong submitting your spot.");
         });
 
         // Close Modal

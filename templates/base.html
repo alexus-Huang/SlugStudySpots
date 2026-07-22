@@ -17,10 +17,21 @@
             <a href="/">Home</a>
             <a href="/about">About</a>
             <a href="/map">Map</a>
-            <a href="/login">Login</a>
+            {% if current_user.is_authenticated %}
+            <span class="nav-greeting">Hi, {{ current_user.username }}</span>
+            <a href="{{ url_for('logout') }}">Logout</a>
+            {% else %}
+            <a href="{{ url_for('login') }}">Login</a>
+            {% endif %}
         </div>
     </nav>
     <main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+        <p class="flash flash-{{ category }}">{{ message }}</p>
+    {% endfor %}
+    {% endwith %}
+
     {% block content %}
 
     {% endblock %}
