@@ -493,8 +493,16 @@ if (mapElement){
                 tags: tagsAtSubmit
             })
         })
-        .then(response => response.json())
+        .then(response => {
+            if(response.status === 401){
+                window.location.href = "/login";
+                return null;
+            }
+            return response.json();
+        })
         .then(data => {
+            if(!data) return; // redirected above
+
             console.log(data.message);
 
             const newSpot = {
