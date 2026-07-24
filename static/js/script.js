@@ -161,9 +161,11 @@ if (mapElement){
         alertBox.classList.remove("show");
     }
 
-    function showSpotSubmissionAlert(message) {
+    function showSpotSubmissionAlert(message, isError = true) {
         const alertBox = document.getElementById("spot-submission-alert");
         alertBox.textContent = message;
+        alertBox.classList.toggle("error", isError);
+        alertBox.classList.toggle("success", !isError);
         alertBox.classList.add("show");
 
         setTimeout(() => {
@@ -503,34 +505,7 @@ if (mapElement){
         .then(data => {
             if(!data) return; // redirected above
 
-            console.log(data.message);
-
-            const newSpot = {
-                id: null,   // real database id isn't known until the page reloads from /api/spots
-                name: name,
-                category: category.toLowerCase(),
-                rating: 0,
-                latitude: coordsAtSubmit[0],   // <-- use the snapshot, not the live variable
-                longitude: coordsAtSubmit[1],  // <-- same here
-                description: description,
-                tags: tagsAtSubmit,
-                images: [],
-                likes: 0,
-                user_has_liked: false
-            };
-
-            studySpots.push(newSpot);
-
-            const marker = L.marker([newSpot.latitude, newSpot.longitude]).addTo(map);
-            marker.on("click", function(){
-                openStudySpot(newSpot);
-            });
-
-            markers.push({
-                marker: marker,
-                category: newSpot.category,
-                tags: newSpot.tags
-            });
+            showSpotSubmissionAlert(data.message, false);
         })
         .catch(err => {
             console.error("Failed to submit spot:", err);

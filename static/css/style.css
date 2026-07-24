@@ -748,13 +748,11 @@ nav {
 }
 
 /* Spot Submission Alert */
-.spot-submission-alert{
+.spot-submission-alert {
     position: fixed;
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background: #ffe9e9;
-    color: #a30000;
     padding: 12px 20px;
     border-radius: 8px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
@@ -762,6 +760,16 @@ nav {
     opacity: 0;
     transition: opacity 0.3s ease;
     pointer-events: none;
+}
+
+.spot-submission-alert.error {
+    background: #ffe9e9;
+    color: #a30000;
+}
+
+.spot-submission-alert.success {
+    background: #e6f7ec;
+    color: #1a7a3c;
 }
 
 .spot-submission-alert.show{
