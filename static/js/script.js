@@ -567,3 +567,32 @@ if (mapElement){
     // Load real spots from the database and place them on the map
     loadSpots();
 }
+
+// Admin review page — approve/reject buttons
+document.querySelectorAll(".approve-btn").forEach(button => {
+    button.addEventListener("click", function(){
+        const id = this.dataset.id;
+        fetch(`/admin/approve/${id}`, { method: "POST" })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById(`pending-${id}`).remove();
+            })
+            .catch(err => {
+                console.error("Failed to approve spot:", err);
+            });
+    });
+});
+
+document.querySelectorAll(".reject-btn").forEach(button => {
+    button.addEventListener("click", function(){
+        const id = this.dataset.id;
+        fetch(`/admin/reject/${id}`, { method: "POST" })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById(`pending-${id}`).remove();
+            })
+            .catch(err => {
+                console.error("Failed to reject spot:", err);
+            });
+    });
+});

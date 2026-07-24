@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="admin-page">
+    <h1>Pending Study Spots</h1>
+
+    {% if pending|length == 0 %}
+        <p>No pending submissions right now.</p>
+    {% endif %}
+
+    <div class="pending-list">
+        {% for spot in pending %}
+        <div class="pending-card" id="pending-{{ spot['id'] }}">
+            <h3>{{ spot['name'] }}</h3>
+            <p><strong>Category:</strong> {{ spot['category'] }}</p>
+            <p><strong>Description:</strong> {{ spot['description'] }}</p>
+            <p><strong>Tags:</strong> {{ spot['tags'] }}</p>
+            <p><strong>Submitted by:</strong> {{ spot['username'] }}</p>
+            <p><strong>Coordinates:</strong> {{ spot['latitude'] }}, {{ spot['longitude'] }}</p>
+
+            <div class="pending-actions">
+                <button class="approve-btn" data-id="{{ spot['id'] }}">✅ Approve</button>
+                <button class="reject-btn" data-id="{{ spot['id'] }}">❌ Reject</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+</section>
+
+{% endblock %}

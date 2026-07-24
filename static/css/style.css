@@ -788,3 +788,48 @@ nav {
 .review-alert.show {
     display: block;
 }
+
+/* Admin Page */
+.admin-page {
+    padding: 40px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.pending-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.pending-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.pending-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.pending-actions button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.approve-btn {
+    background: #e6f7ec;
+    color: #1a7a3c;
+}
+
+.reject-btn {
+    background: #ffe9e9;
+    color: #a30000;
+}
