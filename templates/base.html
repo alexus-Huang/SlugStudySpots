@@ -19,6 +19,7 @@
             <a href="/map">Map</a>
             <a href="{{ url_for('leaderboard') }}">Leaderboard</a>
             {% if current_user.is_authenticated %}
+            <a href="{{ url_for('profile') }}">Profile</a>
             <span class="nav-greeting">Hi, {{ current_user.username }}</span>
             <a href="{{ url_for('logout') }}">Logout</a>
             {% else %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="profile-page">
+    <h1>{{ current_user.username }}'s Profile</h1>
+    <p class="profile-points">🏅 {{ current_user.points }} points</p>
+
+    <h2>Badges Earned</h2>
+
+    {% if badges|length == 0 %}
+        <p>No badges yet — suggest a spot, write a review, or get some likes to start earning!</p>
+    {% endif %}
+
+    <div class="badge-grid">
+        {% for badge in badges %}
+        <div class="badge-card">
+            <div class="badge-icon">{{ badge['icon'] }}</div>
+            <h3>{{ badge['name'] }}</h3>
+            <p>{{ badge['description'] }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+{% endblock %}

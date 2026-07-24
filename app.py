@@ -475,5 +475,21 @@ def leaderboard():
 
     return render_template('leaderboard.html', top_users=top_users)
 
+@app.route("/profile")
+@login_required
+def profile():
+    connection = get_db_connection()
+
+    earned_badges = connection.execute("""
+        SELECT badges.name, badges.description, badges.icon, user_badges.earned_at
+        FROM user_badges
+        JOIN badges ON user_badges.badge_code = badges.code
+        WHERE user_badges.user_id = ?
+        ORDER BY user_badges.earned_at DESC
+    """, (current_user.id,)).fetchall()
+
+    connection.close()
+
+    return render_template('profile.html', badges=earned_badges)
 if __name__ == '__main__':
     app.run(debug=True) # set to false or environment variable when deploying
