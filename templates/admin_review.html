@@ -6,7 +6,10 @@
     <h1>Pending Study Spots</h1>
 
     {% if pending|length == 0 %}
-        <p>No pending submissions right now.</p>
+    <div class="empty-state">
+        <div class="empty-state-icon">🎉</div>
+        <p>All caught up! No pending submissions right now.</p>
+    </div>
     {% endif %}
 
     <div class="pending-list">

@@ -884,6 +884,16 @@ nav .nav-dropdown-menu a:hover {
     color: #a30000;
 }
 
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #555;
+}
+
+.empty-state-icon {
+    font-size: 50px;
+    margin-bottom: 15px;
+}
 /* Leaderboard */
 .leaderboard-page {
     max-width: 700px;
