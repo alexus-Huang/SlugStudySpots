@@ -6,6 +6,8 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for, f
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from database import create_database
+from functools import wraps
+
 load_dotenv()  # reads .env and loads it into environment variables
 
 app = Flask(__name__)
@@ -23,6 +25,13 @@ def unauthorized():
         return jsonify({"error": "login_required"}), 401
     return redirect(url_for('login'))
 
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or not current_user.is_admin:
+            return "Access denied.", 403
+        return f(*args, **kwargs)
+    return decorated_function
 # Regex
 EMAIL_REGEX = re.compile(r'^[\w.+-]+@[\w-]+\.[a-zA-Z0-9-.]+$')
 USERNAME_REGEX = re.compile(r'^[A-Za-z0-9_]{3,20}$')
@@ -35,10 +44,11 @@ def get_db_connection():
     return connection  # sends database the function
 
 class User(UserMixin):
-    def __init__(self, id, username, points):
+    def __init__(self, id, username, points, is_admin):
         self.id = id
         self.username = username
         self.points = points
+        self.is_admin = is_admin
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -47,7 +57,7 @@ def load_user(user_id):
     connection.close()
     if row is None:
         return None
-    return User(row["id"], row["username"], row["points"])
+    return User(row["id"], row["username"], row["points"], row["is_admin"])
 
 @app.route('/')
 def home():
@@ -118,7 +128,7 @@ def login():
             flash("Invalid email or password.","error")
             return redirect(url_for('login'))
 
-        user = User(row["id"], row["username"], row["points"])
+        user = User(row["id"], row["username"], row["points"], row["is_admin"])
         login_user(user)
         return redirect(url_for('home'))
 
@@ -131,16 +141,17 @@ def logout():
     return redirect(url_for('home'))
 
 
-@app.route("/submit_spot", methods=["POST"])  # when a client sends a POST request to the url, run submit_spot()
+@app.route("/submit_spot", methods=["POST"])
 @login_required
 def submit_spot():
-    data = request.json  # converts JSON data into a python dictionary
-    tags = data.get("tags", [])  # list of tags sent from the frontend; empty list if none provided
+    data = request.json
+    tags = data.get("tags", [])
+
     connection = get_db_connection()
     connection.execute("""
-    INSERT INTO study_spots
-    (name, category, latitude, longitude, description, tags)
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT INTO pending_spots
+    (name, category, latitude, longitude, description, tags, submitted_by)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
     """,
     (
         data["name"],
@@ -148,15 +159,15 @@ def submit_spot():
         data["latitude"],
         data["longitude"],
         data["description"],
-        ",".join(tags)  # store tags as one comma-separated string, e.g. "WiFi,Quiet"
+        ",".join(tags),
+        current_user.id
     ))
-    # ? placeholders protects app from SQL injection attacks
 
-    connection.commit()  # saves new study spot into the db file
-    connection.close()  # frees up resources when db is closed
+    connection.commit()
+    connection.close()
 
     return jsonify({
-        "message": "Spot submitted successfully"
+        "message": "Spot submitted for review! It'll appear on the map once approved."
     })
 
 @app.route("/api/spots")
@@ -281,5 +292,52 @@ def submit_review(spot_id):
     connection.close()
     return jsonify({"message": "Review submitted successfully"})
 
+# Admin
+@app.route("/admin/review")
+@admin_required
+def admin_review():
+    connection = get_db_connection()
+    pending = connection.execute("""
+        SELECT pending_spots.*, users.username
+        FROM pending_spots
+        JOIN users ON pending_spots.submitted_by = users.id
+        ORDER BY pending_spots.created_at ASC
+    """).fetchall()
+    connection.close()
+    return render_template('admin_review.html', pending=pending)
+
+
+@app.route("/admin/approve/<int:pending_id>", methods=["POST"])
+@admin_required
+def admin_approve(pending_id):
+    connection = get_db_connection()
+    spot = connection.execute(
+        "SELECT * FROM pending_spots WHERE id = ?", (pending_id,)
+    ).fetchone()
+
+    if spot is None:
+        connection.close()
+        return jsonify({"error": "Not found"}), 404
+
+    connection.execute("""
+        INSERT INTO study_spots (name, category, latitude, longitude, description, tags)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """, (spot["name"], spot["category"], spot["latitude"], spot["longitude"], spot["description"], spot["tags"]))
+
+    connection.execute("DELETE FROM pending_spots WHERE id = ?", (pending_id,))
+    connection.commit()
+    connection.close()
+
+    return jsonify({"message": "Spot approved"})
+
+
+@app.route("/admin/reject/<int:pending_id>", methods=["POST"])
+@admin_required
+def admin_reject(pending_id):
+    connection = get_db_connection()
+    connection.execute("DELETE FROM pending_spots WHERE id = ?", (pending_id,))
+    connection.commit()
+    connection.close()
+    return jsonify({"message": "Spot rejected"})
 if __name__ == '__main__':
     app.run(debug=True) # set to false or environment variable when deploying

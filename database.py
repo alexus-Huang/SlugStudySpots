@@ -37,6 +37,11 @@ def create_database():
     except sqlite3.OperationalError:
         pass
 
+    try:
+        cursor.execute("ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0")
+    except sqlite3.OperationalError:
+        pass
+
     # likes table
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS likes (
@@ -61,6 +66,22 @@ def create_database():
         UNIQUE(spot_id, user_id),
         FOREIGN KEY (spot_id) REFERENCES study_spots(id),
         FOREIGN KEY (user_id) REFERENCES users(id)
+    )
+    """)
+
+    # pending_spots table — holds submitted spots awaiting your approval
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS pending_spots (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        category TEXT NOT NULL,
+        latitude REAL NOT NULL,
+        longitude REAL NOT NULL,
+        description TEXT,
+        tags TEXT DEFAULT '',
+        submitted_by INTEGER NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (submitted_by) REFERENCES users(id)
     )
     """)
 
