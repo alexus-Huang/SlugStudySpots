@@ -23,18 +23,18 @@
     <div class="pending-list">
         {% for spot in pending %}
         <div class="pending-card" id="pending-{{ spot['id'] }}" data-category="{{ spot['category'] }}">
-            <h3>{{ spot['name'] }}</h3>
-            <p><strong>Category:</strong> {{ spot['category'] }}</p>
-            <p><strong>Description:</strong> {{ spot['description'] }}</p>
-            <p><strong>Tags:</strong> {{ spot['tags'] }}</p>
-            <p><strong>Submitted by:</strong> {{ spot['username'] }}</p>
-            <p><strong>Coordinates:</strong> {{ spot['latitude'] }}, {{ spot['longitude'] }}</p>
+                <h3>{{ spot['name'] }}</h3>
+                <p><strong>Category:</strong> {{ spot['category'] }}</p>
+                <p><strong>Description:</strong> {{ spot['description'] }}</p>
+                <p><strong>Tags:</strong> {{ spot['tags'] }}</p>
+                <p><strong>Submitted by:</strong> {{ spot['username'] }}</p>
+                <p><strong>Coordinates:</strong> {{ spot['latitude'] }}, {{ spot['longitude'] }}</p>
 
-            <div class="pending-actions">
-                <button class="approve-btn" data-id="{{ spot['id'] }}">✅ Approve</button>
-                <button class="reject-btn" data-id="{{ spot['id'] }}">❌ Reject</button>
+                <div class="pending-actions">
+                    <button class="approve-btn" data-id="{{ spot['id'] }}">✅ Approve</button>
+                    <button class="reject-btn" data-id="{{ spot['id'] }}">❌ Reject</button>
+                </div>
             </div>
-        </div>
         {% endfor %}
     </div>
 
