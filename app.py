@@ -54,6 +54,96 @@ def award_points(user_id, amount):
     connection.commit()
     connection.close()
 
+def award_badge(user_id, badge_code):
+    if user_id is None:
+        return
+    connection = get_db_connection()
+    connection.execute(
+        "INSERT OR IGNORE INTO user_badges (user_id, badge_code) VALUES (?, ?)",
+        (user_id, badge_code)
+    )
+    connection.commit()
+    connection.close()
+
+def check_submission_badges(user_id):
+    if user_id is None:
+        return
+    connection = get_db_connection()
+
+    approved_count = connection.execute(
+        "SELECT COUNT(*) FROM study_spots WHERE submitted_by = ?", (user_id,)
+    ).fetchone()[0]
+
+    category_count = connection.execute(
+        "SELECT COUNT(DISTINCT category) FROM study_spots WHERE submitted_by = ?", (user_id,)
+    ).fetchone()[0]
+
+    connection.close()
+
+    if approved_count >= 1:
+        award_badge(user_id, "first_spot")
+    if approved_count >= 3:
+        award_badge(user_id, "frequent_flyer")
+    if approved_count >= 5:
+        award_badge(user_id, "campus_cartographer")
+    if category_count >= 3:
+        award_badge(user_id, "well_rounded")
+
+
+def check_review_badges(user_id):
+    connection = get_db_connection()
+    review_count = connection.execute(
+        "SELECT COUNT(*) FROM reviews WHERE user_id = ?", (user_id,)
+    ).fetchone()[0]
+    connection.close()
+
+    if review_count >= 1:
+        award_badge(user_id, "first_review")
+    if review_count >= 5:
+        award_badge(user_id, "prolific_reviewer_5")
+    if review_count >= 15:
+        award_badge(user_id, "prolific_reviewer_15")
+    if review_count >= 20:
+        award_badge(user_id, "prolific_reviewer_20")
+    if review_count >= 30:
+        award_badge(user_id, "prolific_reviewer_30")
+
+
+def check_spot_popularity_badges(spot_id):
+    connection = get_db_connection()
+
+    spot = connection.execute(
+        "SELECT submitted_by FROM study_spots WHERE id = ?", (spot_id,)
+    ).fetchone()
+
+    if spot is None or spot["submitted_by"] is None:
+        connection.close()
+        return
+
+    like_count = connection.execute(
+        "SELECT COUNT(*) FROM likes WHERE spot_id = ?", (spot_id,)
+    ).fetchone()[0]
+
+    review_count = connection.execute(
+        "SELECT COUNT(*) FROM reviews WHERE spot_id = ?", (spot_id,)
+    ).fetchone()[0]
+
+    connection.close()
+
+    user_id = spot["submitted_by"]
+
+    if review_count >= 5:
+        award_badge(user_id, "popular_pick")
+    if like_count >= 5:
+        award_badge(user_id, "well_loved_5")
+    if like_count >= 10:
+        award_badge(user_id, "well_loved_10")
+    if like_count >= 15:
+        award_badge(user_id, "well_loved_15")
+    if like_count >= 20:
+        award_badge(user_id, "well_loved_20")
+    if like_count >= 30:
+        award_badge(user_id, "well_loved_30")
 class User(UserMixin):
     def __init__(self, id, username, points, is_admin):
         self.id = id
@@ -114,11 +204,18 @@ def signup():
                 (username, email, password_hash),
             )
             connection.commit()
+
+            new_user = connection.execute(
+                "SELECT id FROM users WHERE username = ?", (username,)
+            ).fetchone()
+            connection.close()
+
+            award_badge(new_user["id"], "welcome")
+
         except sqlite3.IntegrityError:
             flash("That username or email is already taken.","error")
             connection.close()
             return redirect(url_for('signup'))
-        connection.close()
 
         flash("Account created! Please log in.", "success")
         return redirect(url_for('login'))
@@ -256,6 +353,8 @@ def like_spot(spot_id):
     if spot is not None:
         award_points(spot["submitted_by"], 3 if liked else -3)
 
+    check_spot_popularity_badges(spot_id)
+
     return jsonify({"liked": liked, "likes": new_count})
 
 @app.route("/api/spots/<int:spot_id>/reviews")
@@ -308,6 +407,8 @@ def submit_review(spot_id):
     connection.close()
 
     award_points(current_user.id, 5)
+    check_review_badges(current_user.id)
+    check_spot_popularity_badges(spot_id)
 
     return jsonify({"message": "Review submitted successfully"})
 
@@ -348,7 +449,7 @@ def admin_approve(pending_id):
     connection.close()
 
     award_points(spot["submitted_by"], 25)
-
+    check_submission_badges(spot["submitted_by"])
     return jsonify({"message": "Spot approved"})
 
 
@@ -360,5 +461,19 @@ def admin_reject(pending_id):
     connection.commit()
     connection.close()
     return jsonify({"message": "Spot rejected"})
+
+@app.route("/leaderboard")
+def leaderboard():
+    connection = get_db_connection()
+    top_users = connection.execute("""
+        SELECT username, points
+        FROM users
+        ORDER BY points DESC
+        LIMIT 20
+    """).fetchall()
+    connection.close()
+
+    return render_template('leaderboard.html', top_users=top_users)
+
 if __name__ == '__main__':
     app.run(debug=True) # set to false or environment variable when deploying

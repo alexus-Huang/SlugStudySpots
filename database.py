@@ -90,6 +90,29 @@ def create_database():
     )
     """)
 
+    # badges table — the fixed list of badge definitions
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS badges (
+        code TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT NOT NULL,
+        icon TEXT DEFAULT '🏅'
+    )
+    """)
+
+    # user_badges table — tracks which users have earned which badges
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS user_badges (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        badge_code TEXT NOT NULL,
+        earned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, badge_code),
+        FOREIGN KEY (user_id) REFERENCES users(id),
+        FOREIGN KEY (badge_code) REFERENCES badges(code)
+    )
+    """)
+
     conn.commit()
     conn.close()
     

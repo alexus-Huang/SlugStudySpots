@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="leaderboard-page">
+    <h1>🏆 SlugSpots Leaderboard</h1>
+    <p>Top contributors, ranked by points earned from approved spots, reviews, and likes.</p>
+
+    <div class="leaderboard-list">
+        {% for user in top_users %}
+        <div class="leaderboard-row">
+            <span class="leaderboard-rank">#{{ loop.index }}</span>
+            <span class="leaderboard-username">{{ user['username'] }}</span>
+            <span class="leaderboard-points">{{ user['points'] }} pts</span>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+{% endblock %}

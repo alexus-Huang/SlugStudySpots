@@ -17,6 +17,7 @@
             <a href="/">Home</a>
             <a href="/about">About</a>
             <a href="/map">Map</a>
+            <a href="{{ url_for('leaderboard') }}">Leaderboard</a>
             {% if current_user.is_authenticated %}
             <span class="nav-greeting">Hi, {{ current_user.username }}</span>
             <a href="{{ url_for('logout') }}">Logout</a>

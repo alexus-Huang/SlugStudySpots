@@ -841,3 +841,46 @@ nav {
     background: #ffe9e9;
     color: #a30000;
 }
+
+/* Leaderboard */
+.leaderboard-page {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 40px;
+    text-align: center;
+}
+
+.leaderboard-list {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.leaderboard-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: white;
+    padding: 15px 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.leaderboard-rank {
+    font-weight: bold;
+    color: #003c6c;
+    width: 50px;
+    text-align: left;
+}
+
+.leaderboard-username {
+    flex: 1;
+    text-align: left;
+    font-weight: bold;
+}
+
+.leaderboard-points {
+    color: #1a7a3c;
+    font-weight: bold;
+}
