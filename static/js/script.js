@@ -571,3 +571,18 @@ document.querySelectorAll(".reject-btn").forEach(button => {
             });
     });
 });
+
+// Nav dropdown (Hi, username menu)
+const navDropdownToggle = document.getElementById("nav-dropdown-toggle");
+const navDropdownMenu = document.getElementById("nav-dropdown-menu");
+
+if (navDropdownToggle) {
+    navDropdownToggle.addEventListener("click", function(event){
+        event.stopPropagation();
+        navDropdownMenu.classList.toggle("show");
+    });
+
+    document.addEventListener("click", function(){
+        navDropdownMenu.classList.remove("show");
+    });
+}

@@ -12,11 +12,53 @@ nav {
     padding: 15px 30px;
 }
 
-.nav-greeting {
+.nav-dropdown {
+    position: relative;
+    display: inline-block;
+    margin-left: 25px;
+    vertical-align: middle;
+}   
+
+.nav-greeting-btn {
+    background: none;
+    border: none;
     color: #7fd1ae;
     font-weight: bold;
-    margin-left: 10px;
-    margin-right:6px;
+    font-size: 15px;
+    cursor: pointer;
+    padding: 0;
+    font-family: inherit;
+}
+
+.nav-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 30px;
+    right: 0;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    overflow: hidden;
+    min-width: 140px;
+    z-index: 1500;
+}
+
+.nav-dropdown-menu.show {
+    display: block;
+}
+
+nav .nav-dropdown-menu a {
+    display: block;
+    padding: 12px 18px;
+    color: #003c6c;
+    text-decoration: none;
+    font-size: 14px;
+    margin-left: 0;
+}
+
+nav .nav-dropdown-menu a:hover {
+    background: #e8f1ff;
+    text-decoration: none;
 }
 
 .logo {
