@@ -43,6 +43,17 @@ def get_db_connection():
     connection.row_factory = sqlite3.Row  # sqlite3.Row makes rows act like dictionaries; easier access (ex: row["name"])
     return connection  # sends database the function
 
+def award_points(user_id, amount):
+    if user_id is None:
+        return  # no submitter to credit (e.g. one of the original seeded spots)
+    connection = get_db_connection()
+    connection.execute(
+        "UPDATE users SET points = points + ? WHERE id = ?",
+        (amount, user_id)
+    )
+    connection.commit()
+    connection.close()
+
 class User(UserMixin):
     def __init__(self, id, username, points, is_admin):
         self.id = id
@@ -212,20 +223,22 @@ def get_spots():
 def like_spot(spot_id):
     connection = get_db_connection()
 
+    spot = connection.execute(
+        "SELECT submitted_by FROM study_spots WHERE id = ?", (spot_id,)
+    ).fetchone()
+
     existing_like = connection.execute(
         "SELECT id FROM likes WHERE spot_id = ? AND user_id = ?",
         (spot_id, current_user.id)
     ).fetchone()
 
     if existing_like:
-        # already liked -> remove it (un-like)
         connection.execute(
             "DELETE FROM likes WHERE spot_id = ? AND user_id = ?",
             (spot_id, current_user.id)
         )
         liked = False
     else:
-        # not liked yet -> add it
         connection.execute(
             "INSERT INTO likes (spot_id, user_id) VALUES (?, ?)",
             (spot_id, current_user.id)
@@ -239,6 +252,9 @@ def like_spot(spot_id):
     ).fetchone()[0]
 
     connection.close()
+
+    if spot is not None:
+        award_points(spot["submitted_by"], 3 if liked else -3)
 
     return jsonify({"liked": liked, "likes": new_count})
 
@@ -290,6 +306,9 @@ def submit_review(spot_id):
         return jsonify({"error": "You've already reviewed this spot."}), 409
 
     connection.close()
+
+    award_points(current_user.id, 5)
+
     return jsonify({"message": "Review submitted successfully"})
 
 # Admin
@@ -320,13 +339,15 @@ def admin_approve(pending_id):
         return jsonify({"error": "Not found"}), 404
 
     connection.execute("""
-        INSERT INTO study_spots (name, category, latitude, longitude, description, tags)
-        VALUES (?, ?, ?, ?, ?, ?)
-    """, (spot["name"], spot["category"], spot["latitude"], spot["longitude"], spot["description"], spot["tags"]))
+        INSERT INTO study_spots (name, category, latitude, longitude, description, tags, submitted_by)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (spot["name"], spot["category"], spot["latitude"], spot["longitude"], spot["description"], spot["tags"], spot["submitted_by"]))
 
     connection.execute("DELETE FROM pending_spots WHERE id = ?", (pending_id,))
     connection.commit()
     connection.close()
+
+    award_points(spot["submitted_by"], 25)
 
     return jsonify({"message": "Spot approved"})
 

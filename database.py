@@ -42,6 +42,11 @@ def create_database():
     except sqlite3.OperationalError:
         pass
 
+    try:
+        cursor.execute("ALTER TABLE study_spots ADD COLUMN submitted_by INTEGER")
+    except sqlite3.OperationalError:
+        pass
+
     # likes table
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS likes (
