@@ -491,5 +491,15 @@ def profile():
     connection.close()
 
     return render_template('profile.html', badges=earned_badges)
+
+@app.context_processor
+def inject_pending_count():
+    if current_user.is_authenticated and current_user.is_admin:
+        connection = get_db_connection()
+        count = connection.execute("SELECT COUNT(*) FROM pending_spots").fetchone()[0]
+        connection.close()
+        return {"pending_count": count}
+    return {"pending_count": 0}
+
 if __name__ == '__main__':
     app.run(debug=True) # set to false or environment variable when deploying

@@ -5,6 +5,14 @@
 <section class="admin-page">
     <h1>Pending Study Spots</h1>
 
+    <div class="admin-filter-bar">
+        <button class="admin-filter-btn active" data-category="all">All</button>
+        <button class="admin-filter-btn" data-category="library">📚 Libraries</button>
+        <button class="admin-filter-btn" data-category="cafe">☕ Cafes</button>
+        <button class="admin-filter-btn" data-category="nature">🌳 Nature</button>
+        <button class="admin-filter-btn" data-category="computer lab">💻 Computer Labs</button>
+    </div>
+
     {% if pending|length == 0 %}
     <div class="empty-state">
         <div class="empty-state-icon">🎉</div>
@@ -14,7 +22,7 @@
 
     <div class="pending-list">
         {% for spot in pending %}
-        <div class="pending-card" id="pending-{{ spot['id'] }}">
+        <div class="pending-card" id="pending-{{ spot['id'] }}" data-category="{{ spot['category'] }}">
             <h3>{{ spot['name'] }}</h3>
             <p><strong>Category:</strong> {{ spot['category'] }}</p>
             <p><strong>Description:</strong> {{ spot['description'] }}</p>
@@ -31,5 +39,14 @@
     </div>
 
 </section>
-
+<div id="reject-confirm-modal" class="suggest-modal">
+    <div class="modal-content">
+        <h2>Reject this spot?</h2>
+        <p>This will permanently delete the submission. This can't be undone.</p>
+        <div class="confirm-actions">
+            <button id="confirm-reject-btn" class="reject-btn">Yes, Reject</button>
+            <button id="cancel-reject-btn">Cancel</button>
+        </div>
+    </div>
+</div>
 {% endblock %}

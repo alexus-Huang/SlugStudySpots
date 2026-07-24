@@ -39,7 +39,7 @@ nav {
     border-radius: 10px;
     box-shadow: 0 6px 15px rgba(0,0,0,0.15);
     overflow: hidden;
-    min-width: 140px;
+    min-width: 180px;
     z-index: 1500;
 }
 
@@ -48,7 +48,9 @@ nav {
 }
 
 nav .nav-dropdown-menu a {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     padding: 12px 18px;
     color: #003c6c;
     text-decoration: none;
@@ -59,6 +61,15 @@ nav .nav-dropdown-menu a {
 nav .nav-dropdown-menu a:hover {
     background: #e8f1ff;
     text-decoration: none;
+}
+
+.pending-badge {
+    background: #a30000;
+    color: white;
+    border-radius: 10px;
+    padding: 2px 8px;
+    font-size: 12px;
+    margin-left: 6px;
 }
 
 .logo {
@@ -893,6 +904,48 @@ nav .nav-dropdown-menu a:hover {
 .empty-state-icon {
     font-size: 50px;
     margin-bottom: 15px;
+}
+
+.confirm-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.confirm-actions button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+#cancel-reject-btn {
+    background: #ddd;
+    color: #333;
+}
+
+.admin-filter-bar {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 20px 0 30px 0;
+}
+
+.admin-filter-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 20px;
+    background: white;
+    cursor: pointer;
+    font-size: 14px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+
+.admin-filter-btn.active {
+    background: #003c6c;
+    color: white;
 }
 /* Leaderboard */
 .leaderboard-page {

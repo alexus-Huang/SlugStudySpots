@@ -558,19 +558,38 @@ document.querySelectorAll(".approve-btn").forEach(button => {
     });
 });
 
-document.querySelectorAll(".reject-btn").forEach(button => {
+// Reject confirmation flow
+let pendingRejectId = null;
+const rejectConfirmModal = document.getElementById("reject-confirm-modal");
+
+document.querySelectorAll(".pending-card .reject-btn").forEach(button => {
     button.addEventListener("click", function(){
-        const id = this.dataset.id;
-        fetch(`/admin/reject/${id}`, { method: "POST" })
+        pendingRejectId = this.dataset.id;
+        rejectConfirmModal.classList.add("show");
+    });
+});
+
+if (rejectConfirmModal) {
+    document.getElementById("cancel-reject-btn").addEventListener("click", function(){
+        pendingRejectId = null;
+        rejectConfirmModal.classList.remove("show");
+    });
+
+    document.getElementById("confirm-reject-btn").addEventListener("click", function(){
+        if(!pendingRejectId) return;
+
+        fetch(`/admin/reject/${pendingRejectId}`, { method: "POST" })
             .then(response => response.json())
             .then(data => {
-                document.getElementById(`pending-${id}`).remove();
+                document.getElementById(`pending-${pendingRejectId}`).remove();
+                rejectConfirmModal.classList.remove("show");
+                pendingRejectId = null;
             })
             .catch(err => {
                 console.error("Failed to reject spot:", err);
             });
     });
-});
+}
 
 // Nav dropdown (Hi, username menu)
 const navDropdownToggle = document.getElementById("nav-dropdown-toggle");
@@ -586,3 +605,22 @@ if (navDropdownToggle) {
         navDropdownMenu.classList.remove("show");
     });
 }
+
+document.querySelectorAll(".admin-filter-btn").forEach(button => {
+    button.addEventListener("click", function(){
+        const category = this.dataset.category;
+
+        document.querySelectorAll(".admin-filter-btn").forEach(btn => {
+            btn.classList.remove("active");
+        });
+        this.classList.add("active");
+
+        document.querySelectorAll(".pending-card").forEach(card => {
+            if(category === "all" || card.dataset.category === category){
+                card.style.display = "block";
+            } else {
+                card.style.display = "none";
+            }
+        });
+    });
+});

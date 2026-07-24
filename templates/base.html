@@ -24,6 +24,12 @@
                     Hi, {{ current_user.username }} ▾
                 </button>
                 <div id="nav-dropdown-menu" class="nav-dropdown-menu">
+                    {% if current_user.is_admin %}
+                    <a href="{{ url_for('admin_review') }}">
+                        Admin Review
+                        {% if pending_count > 0 %}<span class="pending-badge">{{ pending_count }}</span>{% endif %}
+                    </a>
+                    {% endif %}
                     <a href="{{ url_for('profile') }}">Profile</a>
                     <a href="{{ url_for('logout') }}">Logout</a>
                 </div>
