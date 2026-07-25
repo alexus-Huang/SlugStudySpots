@@ -199,6 +199,25 @@ if (mapElement){
             });
     }
 
+    function refreshCurrentSpotData(){
+        if(!currentSpot || currentSpot.id === null) return;
+
+        fetch("/api/spots")
+            .then(response => response.json())
+            .then(data => {
+                studySpots = data;
+                const updatedSpot = studySpots.find(spot => spot.id === currentSpot.id);
+                if(updatedSpot){
+                    currentSpot = updatedSpot;
+                    document.getElementById("spot-rating").textContent = `⭐ ${currentSpot.rating}`;
+                    document.getElementById("spot-likes").textContent = `👍 ${currentSpot.likes} Likes`;
+                }
+            })
+            .catch(err => {
+                console.error("Failed to refresh spot data:", err);
+            });
+    }
+    
     function showReviewAlert(message){
         const alertBox = document.getElementById("review-alert");
         alertBox.textContent = message;
@@ -448,6 +467,7 @@ if (mapElement){
 
                 // Success — reload reviews from the database and close the modal
                 loadReviews(currentSpot.id);
+                refreshCurrentSpotData();
                 reviewModal.classList.remove("show");
                 hideReviewAlert();
                 document.getElementById("review-comment").value = "";

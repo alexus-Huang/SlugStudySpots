@@ -289,6 +289,16 @@ def get_spots():
             "SELECT COUNT(*) FROM likes WHERE spot_id = ?", (spot["id"],)
         ).fetchone()[0]
 
+        review_stats = connection.execute(
+            "SELECT AVG(rating) as avg_rating, COUNT(*) as review_count FROM reviews WHERE spot_id = ?",
+            (spot["id"],)
+        ).fetchone()
+
+        if review_stats["review_count"] > 0:
+            display_rating = round(review_stats["avg_rating"], 1)
+        else:
+            display_rating = spot["rating"]
+
         user_has_liked = False
         if current_user.is_authenticated:
             liked_row = connection.execute(
@@ -301,7 +311,7 @@ def get_spots():
             "id": spot["id"],
             "name": spot["name"],
             "category": spot["category"],
-            "rating": spot["rating"],
+            "rating": display_rating,
             "latitude": spot["latitude"],
             "longitude": spot["longitude"],
             "description": spot["description"],
