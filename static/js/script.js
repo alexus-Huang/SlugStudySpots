@@ -624,3 +624,49 @@ document.querySelectorAll(".admin-filter-btn").forEach(button => {
         });
     });
 });
+
+const navHamburger = document.getElementById("nav-hamburger");
+const navLinksContainer = document.querySelector(".nav-links");
+
+if (navHamburger) {
+    navHamburger.addEventListener("click", function(event){
+        event.stopPropagation();
+        navLinksContainer.classList.toggle("show");
+    });
+}
+
+function enableDragToScroll(selector){
+    document.querySelectorAll(selector).forEach(el => {
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        el.addEventListener("mousedown", function(e){
+            isDown = true;
+            el.classList.add("dragging");
+            startX = e.pageX - el.offsetLeft;
+            scrollLeft = el.scrollLeft;
+        });
+
+        el.addEventListener("mouseleave", function(){
+            isDown = false;
+            el.classList.remove("dragging");
+        });
+
+        el.addEventListener("mouseup", function(){
+            isDown = false;
+            el.classList.remove("dragging");
+        });
+
+        el.addEventListener("mousemove", function(e){
+            if(!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - el.offsetLeft;
+            const walk = x - startX;
+            el.scrollLeft = scrollLeft - walk;
+        });
+    });
+}
+
+enableDragToScroll(".filter-bar");
+enableDragToScroll(".tag-filter-bar");
