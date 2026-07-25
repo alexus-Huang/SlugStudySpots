@@ -20,6 +20,8 @@
 
         <button class="filter-btn" data-category="computer lab">💻 Computer Labs</button>
 
+        <button class="filter-btn" data-category="lounge">🛋️ Lounges</button>
+
         <button id="clear-filters">✖ Clear Filters</button>
 
     </div>
@@ -92,6 +94,7 @@
             <option value="library">Library</option>
             <option value="cafe">Cafe</option>
             <option value="computer lab">Computer Lab</option>
+            <option value="lounge">Lounge</option>
             <option value="nature">Outdoor</option>
             <option value="other">Other</option>
         </select>
@@ -140,4 +143,10 @@
 </div>
 
 <div id="spot-submission-alert" class="spot-submission-alert"></div>
+<div id="image-lightbox" class="image-lightbox">
+    <button id="lightbox-close" class="lightbox-close">✖</button>
+    <button id="lightbox-prev" class="lightbox-nav lightbox-prev">‹</button>
+    <img id="lightbox-image" src="" alt="">
+    <button id="lightbox-next" class="lightbox-nav lightbox-next">›</button>
+</div>
 {% endblock %}

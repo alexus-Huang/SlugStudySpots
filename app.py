@@ -502,4 +502,4 @@ def inject_pending_count():
     return {"pending_count": 0}
 
 if __name__ == '__main__':
-    app.run(debug=True) # set to false or environment variable when deploying
+    app.run(debug=False)

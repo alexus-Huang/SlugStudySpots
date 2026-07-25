@@ -36,6 +36,12 @@ if (mapElement){
         popupAnchor: [0,-40]
     });
 
+    const loungeIcon = L.icon({
+        iconUrl: "/static/images/lounge.png",
+        iconSize: [30,30],
+        iconAnchor: [15,30],
+        popupAnchor: [0,-40]
+    });
     // Add map tiles
     L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",{attribution: '&copy; OpenStreetMap contributors'}).addTo(map);
 
@@ -83,6 +89,8 @@ if (mapElement){
     let selectingLocation = false;
     let selectedCoordinates = null;
     let tempMarker = null;
+    let currentImages = [];
+    let currentImageIndex = 0;
     // Open bottom sheet
     function openStudySpot(spot){
         currentSpot = spot;
@@ -96,16 +104,17 @@ if (mapElement){
         const tagsContainer =document.getElementById("spot-tags");
         tagsContainer.innerHTML = "";
         spot.tags.forEach(tag => {
-            tagsContainer.innerHTML +=`<span class="study-spot-tag">${tag}</span>`;
+            tagsContainer.innerHTML +=`<span class="study-spot-tag">${escapeHtml(tag)}</span>`;
         });
 
         // Images
         const imagesContainer = document.getElementById("spot-images");
         imagesContainer.innerHTML = "";
+        currentImages = spot.images || [];
 
         if(spot.images){
-            spot.images.forEach(image =>{
-                imagesContainer.innerHTML += `<img src="${image}" alt="${spot.name} image" class="study-spot-image">`;
+            spot.images.forEach((image, index) =>{
+                imagesContainer.innerHTML += `<img src="${escapeHtml(image)}" alt="${escapeHtml(spot.name)} image" class="study-spot-image" data-index="${index}">`;
             })
         }
 
@@ -124,6 +133,46 @@ if (mapElement){
         }
     }
 
+    const lightbox = document.getElementById("image-lightbox");
+    const lightboxImage = document.getElementById("lightbox-image");
+
+    function openLightbox(index){
+        currentImageIndex = index;
+        lightboxImage.src = currentImages[currentImageIndex];
+        lightbox.classList.add("show");
+    }
+
+    function showLightboxImage(){
+        lightboxImage.src = currentImages[currentImageIndex];
+    }
+
+    document.getElementById("spot-images").addEventListener("click", function(event){
+        if(event.target.tagName === "IMG"){
+            const index = Number(event.target.dataset.index);
+            openLightbox(index);
+        }
+    });
+
+    document.getElementById("lightbox-close").addEventListener("click", function(){
+        lightbox.classList.remove("show");
+    });
+
+    document.getElementById("lightbox-prev").addEventListener("click", function(){
+        currentImageIndex = (currentImageIndex - 1 + currentImages.length) % currentImages.length;
+        showLightboxImage();
+    });
+
+    document.getElementById("lightbox-next").addEventListener("click", function(){
+        currentImageIndex = (currentImageIndex + 1) % currentImages.length;
+        showLightboxImage();
+    });
+
+    lightbox.addEventListener("click", function(event){
+        if(event.target === lightbox){
+            lightbox.classList.remove("show");
+        }
+    });
+
     function loadReviews(spotId){
         const reviewsContainer = document.getElementById("spot-reviews");
         reviewsContainer.innerHTML = "";
@@ -138,9 +187,9 @@ if (mapElement){
                 reviews.forEach(review => {
                     reviewsContainer.innerHTML += `
                     <div class="review-card">
-                        <strong>${review.username}</strong>
+                        <strong>${escapeHtml(review.username)}</strong>
                         <p>${"⭐".repeat(review.rating)}</p>
-                        <p>${review.comment}</p>
+                        <p>${escapeHtml(review.comment)}</p>
                     </div>
                     `;
                 });
@@ -159,6 +208,12 @@ if (mapElement){
     function hideReviewAlert(){
         const alertBox = document.getElementById("review-alert");
         alertBox.classList.remove("show");
+    }
+
+    function escapeHtml(text){
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     function showSpotSubmissionAlert(message, isError = true) {
@@ -188,6 +243,9 @@ if (mapElement){
         }
         else if (spot.category === "nature") {
             icon = natureIcon;
+        }
+        else if (spot.category === "lounge") {
+            icon = loungeIcon;
         }
 
         const marker = L.marker([spot.latitude, spot.longitude], {icon: icon}).addTo(map);
