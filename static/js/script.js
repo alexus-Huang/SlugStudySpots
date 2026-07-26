@@ -627,6 +627,47 @@ if (mapElement){
 
     // Load real spots from the database and place them on the map
     loadSpots();
+
+    document.getElementById("add-photo-btn").addEventListener("click", function(){
+        if(!currentSpot || currentSpot.id === null){
+            showSpotSubmissionAlert("This spot isn't available for photo uploads yet.");
+            return;
+        }
+        document.getElementById("spot-photo-upload").click();
+    });
+
+    document.getElementById("spot-photo-upload").addEventListener("change", function(){
+        const file = this.files[0];
+        if(!file) return;
+
+        const formData = new FormData();
+        formData.append("image", file);
+
+        fetch(`/submit_spot_image/${currentSpot.id}`, {
+            method: "POST",
+            body: formData
+        })
+            .then(response => {
+                if(response.status === 401){
+                    window.location.href = "/login";
+                    return null;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if(!data) return;
+                if(data.error){
+                    showSpotSubmissionAlert(data.error);
+                } else {
+                    showSpotSubmissionAlert(data.message, false);
+                }
+                this.value = "";
+            })
+            .catch(err => {
+                console.error("Failed to upload photo:", err);
+                showSpotSubmissionAlert("Something went wrong uploading your photo.");
+            });
+    });
 }
 
 // Admin review page — approve/reject buttons
@@ -690,6 +731,35 @@ document.querySelectorAll(".delete-feedback-btn").forEach(button => {
             });
     });
 });
+
+document.querySelectorAll(".approve-image-btn").forEach(button => {
+    button.addEventListener("click", function(){
+        const id = this.dataset.id;
+        fetch(`/admin/images/approve/${id}`, { method: "POST" })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById(`pending-image-${id}`).remove();
+            })
+            .catch(err => {
+                console.error("Failed to approve image:", err);
+            });
+    });
+});
+
+document.querySelectorAll(".reject-image-btn").forEach(button => {
+    button.addEventListener("click", function(){
+        const id = this.dataset.id;
+        fetch(`/admin/images/reject/${id}`, { method: "POST" })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById(`pending-image-${id}`).remove();
+            })
+            .catch(err => {
+                console.error("Failed to reject image:", err);
+            });
+    });
+});
+
 // Nav dropdown (Hi, username menu)
 const navDropdownToggle = document.getElementById("nav-dropdown-toggle");
 const navDropdownMenu = document.getElementById("nav-dropdown-menu");

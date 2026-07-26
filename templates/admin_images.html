@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="admin-page">
+    <h1>Pending Photos</h1>
+
+    {% if pending|length == 0 %}
+    <div class="empty-state">
+        <div class="empty-state-icon">📷</div>
+        <p>No pending photos right now.</p>
+    </div>
+    {% endif %}
+
+    <div class="pending-list">
+        {% for image in pending %}
+        <div class="pending-card" id="pending-image-{{ image['id'] }}">
+            <img src="{{ url_for('static', filename='images/pending/' + image['filename']) }}"
+                 alt="Pending photo" class="pending-image-preview">
+            <p><strong>Spot:</strong> {{ image['spot_name'] }}</p>
+            <p><strong>Submitted by:</strong> {{ image['username'] }}</p>
+            <div class="pending-actions">
+                <button class="approve-image-btn" data-id="{{ image['id'] }}">✅ Approve</button>
+                <button class="reject-image-btn" data-id="{{ image['id'] }}">❌ Reject</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+{% endblock %}

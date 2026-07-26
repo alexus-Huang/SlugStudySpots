@@ -122,6 +122,19 @@ def create_database():
         FOREIGN KEY (user_id) REFERENCES users(id)
     )
     """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS pending_images (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        spot_id INTEGER NOT NULL,
+        filename TEXT NOT NULL,
+        submitted_by INTEGER NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (spot_id) REFERENCES study_spots(id),
+        FOREIGN KEY (submitted_by) REFERENCES users(id)
+    )
+    """)
+    
     conn.commit()
     conn.close()
     

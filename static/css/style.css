@@ -1382,3 +1382,29 @@ nav .nav-dropdown-menu a:hover {
     font-size: 15px;
     font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Admin Images */
+.pending-image-preview {
+    width: 100%;
+    max-width: 300px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+/* User Photo Button */
+#add-photo-btn {
+    margin-top: 10px;
+    background: white;
+    color: #003c6c;
+    border: 2px solid #003c6c;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+#add-photo-btn:hover {
+    background: #e8f1ff;
+}

@@ -8,6 +8,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from database import create_database
 from functools import wraps
 from better_profanity import profanity
+import os
+import uuid
+from werkzeug.utils import secure_filename
 load_dotenv()  # reads .env and loads it into environment variables
 
 app = Flask(__name__)
@@ -21,7 +24,7 @@ login_manager.login_view = "login"
 @login_manager.unauthorized_handler
 def unauthorized():
     # redirect — a fetch() call can't "navigate" the browser on its own.
-    if request.path.startswith("/like_spot") or request.path.startswith("/submit_spot") or request.path.startswith("/submit_review") or request.path.startswith("/submit_feedback"):
+    if request.path.startswith("/like_spot") or request.path.startswith("/submit_spot") or request.path.startswith("/submit_review") or request.path.startswith("/submit_feedback") or request.path.startswith("/submit_spot_image"):
         return jsonify({"error": "login_required"}), 401
     return redirect(url_for('login'))
 
@@ -39,6 +42,12 @@ PASSWORD_REGEX = re.compile(r'^(?=.*[A-Za-z])(?=.*\d).{8,}$')
 RESERVED_USERNAMES = ["admin", "administrator", "moderator", "mod", "slugspots", "root", "superuser", "owner"]
 
 LEET_MAP = str.maketrans({"0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "@": "a", "$": "s"})
+
+ALLOWED_IMAGE_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
+MAX_IMAGE_SIZE = 5 * 1024 * 1024  # 5MB
+
+def allowed_image(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_IMAGE_EXTENSIONS
 
 def contains_reserved_word(username):
     normalized = username.lower().translate(LEET_MAP)
@@ -585,5 +594,112 @@ def delete_feedback(feedback_id):
     connection.commit()
     connection.close()
     return jsonify({"message": "Deleted"})
+
+@app.route("/submit_spot_image/<int:spot_id>", methods=["POST"])
+@login_required
+def submit_spot_image(spot_id):
+    if "image" not in request.files:
+        return jsonify({"error": "No image file provided."}), 400
+
+    file = request.files["image"]
+
+    if file.filename == "":
+        return jsonify({"error": "No image selected."}), 400
+
+    if not allowed_image(file.filename):
+        return jsonify({"error": "Only PNG, JPG, GIF, or WEBP images are allowed."}), 400
+
+    file.seek(0, os.SEEK_END)
+    file_size = file.tell()
+    file.seek(0)
+
+    if file_size > MAX_IMAGE_SIZE:
+        return jsonify({"error": "Image must be smaller than 5MB."}), 400
+
+    original_extension = file.filename.rsplit(".", 1)[1].lower()
+    unique_filename = f"{uuid.uuid4().hex}.{original_extension}"
+
+    upload_path = os.path.join("static", "images", "pending", unique_filename)
+    file.save(upload_path)
+
+    connection = get_db_connection()
+    connection.execute(
+        "INSERT INTO pending_images (spot_id, filename, submitted_by) VALUES (?, ?, ?)",
+        (spot_id, unique_filename, current_user.id)
+    )
+    connection.commit()
+    connection.close()
+
+    return jsonify({"message": "Photo submitted for review! It'll appear once approved."})
+
+@app.route("/admin/images")
+@admin_required
+def admin_images():
+    connection = get_db_connection()
+    pending = connection.execute("""
+        SELECT pending_images.*, users.username, study_spots.name as spot_name
+        FROM pending_images
+        JOIN users ON pending_images.submitted_by = users.id
+        JOIN study_spots ON pending_images.spot_id = study_spots.id
+        ORDER BY pending_images.created_at ASC
+    """).fetchall()
+    connection.close()
+    return render_template('admin_images.html', pending=pending)
+
+
+@app.route("/admin/images/approve/<int:pending_id>", methods=["POST"])
+@admin_required
+def admin_approve_image(pending_id):
+    connection = get_db_connection()
+    pending_image = connection.execute(
+        "SELECT * FROM pending_images WHERE id = ?", (pending_id,)
+    ).fetchone()
+
+    if pending_image is None:
+        connection.close()
+        return jsonify({"error": "Not found"}), 404
+
+    spot = connection.execute(
+        "SELECT images FROM study_spots WHERE id = ?", (pending_image["spot_id"],)
+    ).fetchone()
+
+    existing_images = spot["images"].split(",") if spot["images"] else []
+    new_path = f"/static/images/{pending_image['filename']}"
+
+    old_full_path = os.path.join("static", "images", "pending", pending_image["filename"])
+    new_full_path = os.path.join("static", "images", pending_image["filename"])
+    os.rename(old_full_path, new_full_path)
+
+    existing_images.append(new_path)
+    connection.execute(
+        "UPDATE study_spots SET images = ? WHERE id = ?",
+        (",".join(existing_images), pending_image["spot_id"])
+    )
+
+    connection.execute("DELETE FROM pending_images WHERE id = ?", (pending_id,))
+    connection.commit()
+    connection.close()
+
+    return jsonify({"message": "Image approved"})
+
+@app.route("/admin/images/reject/<int:pending_id>", methods=["POST"])
+@admin_required
+def admin_reject_image(pending_id):
+    connection = get_db_connection()
+    pending_image = connection.execute(
+        "SELECT * FROM pending_images WHERE id = ?", (pending_id,)
+    ).fetchone()
+
+    if pending_image is not None:
+        file_path = os.path.join("static", "images", "pending", pending_image["filename"])
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+        connection.execute("DELETE FROM pending_images WHERE id = ?", (pending_id,))
+        connection.commit()
+
+    connection.close()
+    return jsonify({"message": "Image rejected"})
+
 if __name__ == '__main__':
     app.run(debug=False)
