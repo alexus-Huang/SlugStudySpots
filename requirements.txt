@@ -2,3 +2,4 @@ flask
 werkzeug
 flask-login
 python-dotenv
+better-profanity

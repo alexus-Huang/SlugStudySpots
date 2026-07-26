@@ -460,7 +460,7 @@ if (mapElement){
                     return;
                 }
                 if(result.status === 400){
-                    alert(result.data.error);
+                    showReviewAlert(result.data.error);
                     return;
                 }
 

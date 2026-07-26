@@ -7,7 +7,7 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from werkzeug.security import generate_password_hash, check_password_hash
 from database import create_database
 from functools import wraps
-
+from better_profanity import profanity
 load_dotenv()  # reads .env and loads it into environment variables
 
 app = Flask(__name__)
@@ -34,8 +34,18 @@ def admin_required(f):
     return decorated_function
 # Regex
 EMAIL_REGEX = re.compile(r'^[\w.+-]+@[\w-]+\.[a-zA-Z0-9-.]+$')
-USERNAME_REGEX = re.compile(r'^[A-Za-z0-9_]{3,20}$')
+USERNAME_REGEX = re.compile(r'^[A-Za-z0-9]{3,20}$')
 PASSWORD_REGEX = re.compile(r'^(?=.*[A-Za-z])(?=.*\d).{8,}$')
+RESERVED_USERNAMES = ["admin", "administrator", "moderator", "mod", "slugspots", "root", "superuser", "owner"]
+
+LEET_MAP = str.maketrans({"0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "@": "a", "$": "s"})
+
+def contains_reserved_word(username):
+    normalized = username.lower().translate(LEET_MAP)
+    normalized = re.sub(r'[^a-z0-9]', '', normalized)
+    return any(word in normalized for word in RESERVED_USERNAMES)
+
+profanity.load_censor_words()
 
 # Slugspots.db file
 def get_db_connection():
@@ -184,7 +194,15 @@ def signup():
             return redirect(url_for('signup'))
 
         if not USERNAME_REGEX.match(username):
-            flash("Username must be 3-20 characters, letters/numbers/underscores only.","error")
+            flash("Username must be 3-20 characters, letters and numbers only.","error")
+            return redirect(url_for('signup'))
+
+        if contains_reserved_word(username):
+            flash("That username isn't allowed.","error")
+            return redirect(url_for('signup'))
+
+        if profanity.contains_profanity(username):
+            flash("That username isn't allowed.","error")
             return redirect(url_for('signup'))
 
         if not EMAIL_REGEX.match(email):
@@ -400,6 +418,9 @@ def submit_review(spot_id):
     if not comment:
         return jsonify({"error": "Review cannot be empty."}), 400
 
+    if profanity.contains_profanity(comment):
+        return jsonify({"error": "Please remove inappropriate language from your review."}), 400
+    
     if not isinstance(rating, int) or rating < 1 or rating > 5:
         return jsonify({"error": "Rating must be between 1 and 5."}), 400
 
