@@ -29,8 +29,12 @@
                         Admin Review
                         {% if pending_count > 0 %}<span class="pending-badge">{{ pending_count }}</span>{% endif %}
                     </a>
+                    <a href="{{ url_for('admin_users') }}">All Users</a>
+                    <a href="{{ url_for('admin_feedback') }}">Feedback Inbox</a>
                     {% endif %}
                     <a href="{{ url_for('profile') }}">Profile</a>
+                    <a href="#" id="feedback-link">Feedback</a>
+
                     <a href="{{ url_for('logout') }}">Logout</a>
                 </div>
             </div>
@@ -50,7 +54,19 @@
 
     {% endblock %}
     </main>
+    <div id="feedback-modal" class="suggest-modal">
+        <div class="modal-content">
+            <button id="close-feedback-modal">✖</button>
+            <h2>Send Feedback</h2>
+            <p>Found a bug or have an idea? Let us know!</p>
+            <textarea id="feedback-message" placeholder="What's on your mind?"></textarea>
+            <div id="feedback-alert" class="review-alert"></div>
+            <button id="submit-feedback-btn">Submit</button>
+        </div>
+    </div>
+    <div id="spot-submission-alert" class="spot-submission-alert"></div>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
 </body>
 </html>

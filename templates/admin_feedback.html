@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="admin-page">
+    <h1>User Feedback</h1>
+
+    {% if feedback_list|length == 0 %}
+    <div class="empty-state">
+        <div class="empty-state-icon">📭</div>
+        <p>No feedback submitted yet.</p>
+    </div>
+    {% endif %}
+
+    <div class="pending-list">
+        {% for item in feedback_list %}
+        <div class="pending-card" id="feedback-{{ item['id'] }}">
+            <p><strong>From:</strong> {{ item['username'] or 'Unknown user' }}</p>
+            <p><strong>Submitted:</strong> {{ item['created_at'] }}</p>
+            <p>{{ item['message'] }}</p>
+            <div class="pending-actions">
+                <button class="delete-feedback-btn" data-id="{{ item['id'] }}">🗑️ Delete</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+{% endblock %}

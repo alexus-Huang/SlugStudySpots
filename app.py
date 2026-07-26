@@ -21,7 +21,7 @@ login_manager.login_view = "login"
 @login_manager.unauthorized_handler
 def unauthorized():
     # redirect — a fetch() call can't "navigate" the browser on its own.
-    if request.path.startswith("/like_spot") or request.path.startswith("/submit_spot") or request.path.startswith("/submit_review"):
+    if request.path.startswith("/like_spot") or request.path.startswith("/submit_spot") or request.path.startswith("/submit_review") or request.path.startswith("/submit_feedback"):
         return jsonify({"error": "login_required"}), 401
     return redirect(url_for('login'))
 
@@ -511,5 +511,57 @@ def inject_pending_count():
         return {"pending_count": count}
     return {"pending_count": 0}
 
+
+@app.route("/admin/users")
+@admin_required
+def admin_users():
+    connection = get_db_connection()
+    users = connection.execute(
+        "SELECT id, username, email, points, is_admin, created_at FROM users ORDER BY created_at DESC"
+    ).fetchall()
+    connection.close()
+    return render_template('admin_users.html', users=users)
+
+@app.route("/submit_feedback", methods=["POST"])
+@login_required
+def submit_feedback():
+    data = request.json
+    message = data.get("message", "").strip()
+
+    if not message:
+        return jsonify({"error": "Feedback can't be empty."}), 400
+
+    connection = get_db_connection()
+    connection.execute(
+        "INSERT INTO feedback (user_id, message) VALUES (?, ?)",
+        (current_user.id, message)
+    )
+    connection.commit()
+    connection.close()
+
+    return jsonify({"message": "Thanks for the feedback!"})
+
+@app.route("/admin/feedback")
+@admin_required
+def admin_feedback():
+    connection = get_db_connection()
+    feedback_list = connection.execute("""
+        SELECT feedback.id, feedback.message, feedback.created_at, users.username
+        FROM feedback
+        LEFT JOIN users ON feedback.user_id = users.id
+        ORDER BY feedback.created_at DESC
+    """).fetchall()
+    connection.close()
+    return render_template('admin_feedback.html', feedback_list=feedback_list)
+
+
+@app.route("/admin/feedback/delete/<int:feedback_id>", methods=["POST"])
+@admin_required
+def delete_feedback(feedback_id):
+    connection = get_db_connection()
+    connection.execute("DELETE FROM feedback WHERE id = ?", (feedback_id,))
+    connection.commit()
+    connection.close()
+    return jsonify({"message": "Deleted"})
 if __name__ == '__main__':
     app.run(debug=False)

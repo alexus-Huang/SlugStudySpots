@@ -1256,3 +1256,128 @@ nav .nav-dropdown-menu a:hover {
         height: 70px;
     }
 }
+
+/* Admin User Page */
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.users-table th,
+.users-table td {
+    padding: 12px 18px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.users-table th {
+    background: #003c6c;
+    color: white;
+}
+
+/* About Page */
+.about-page {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.about-page h1 {
+    color: #003c6c;
+    text-align: center;
+}
+
+.about-intro {
+    text-align: center;
+    font-size: 18px;
+    color: #444;
+    margin: 20px 0 40px 0;
+}
+
+.about-card {
+    background: white;
+    padding: 25px 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    margin-bottom: 25px;
+}
+
+.about-card h2 {
+    color: #003c6c;
+    margin-top: 0;
+    font-size: 18px;
+}
+
+.about-card p {
+    color: #444;
+    line-height: 1.6;
+}
+
+.about-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.about-list li {
+    padding: 8px 0;
+    color: #444;
+}
+
+.about-privacy {
+    text-align: center;
+    font-size: 13px;
+    color: #888;
+    margin-top: 30px;
+}
+
+/* Admin Feedback */
+.delete-feedback-btn {
+    background: #ffe9e9;
+    color: #a30000;
+}
+
+/* User Feedback Form */
+#close-feedback-modal {
+    position: absolute;
+    top: 12px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+#close-feedback-modal:hover {
+    color: #003c6c;
+}
+
+#submit-feedback-btn {
+    background: #003c6c;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#submit-feedback-btn:hover {
+    opacity: 0.85;
+}
+
+#feedback-message {
+    min-height: 120px;
+    max-height: 250px;
+    resize: none;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: Arial, Helvetica, sans-serif;
+}

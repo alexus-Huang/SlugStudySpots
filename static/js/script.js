@@ -1,3 +1,15 @@
+function showSpotSubmissionAlert(message, isError = true) {
+        const alertBox = document.getElementById("spot-submission-alert");
+        alertBox.textContent = message;
+        alertBox.classList.toggle("error", isError);
+        alertBox.classList.toggle("success", !isError);
+        alertBox.classList.add("show");
+
+        setTimeout(() => {
+            alertBox.classList.remove("show");
+        }, 3000);
+    }
+
 const mapElement = document.getElementById('map');
 
 if (mapElement){
@@ -234,19 +246,6 @@ if (mapElement){
         div.textContent = text;
         return div.innerHTML;
     }
-
-    function showSpotSubmissionAlert(message, isError = true) {
-        const alertBox = document.getElementById("spot-submission-alert");
-        alertBox.textContent = message;
-        alertBox.classList.toggle("error", isError);
-        alertBox.classList.toggle("success", !isError);
-        alertBox.classList.add("show");
-
-        setTimeout(() => {
-            alertBox.classList.remove("show");
-        }, 3000);
-    }
-
     
     const markers = [];
     // Add one marker to map
@@ -669,6 +668,19 @@ if (rejectConfirmModal) {
     });
 }
 
+document.querySelectorAll(".delete-feedback-btn").forEach(button => {
+    button.addEventListener("click", function(){
+        const id = this.dataset.id;
+        fetch(`/admin/feedback/delete/${id}`, { method: "POST" })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById(`feedback-${id}`).remove();
+            })
+            .catch(err => {
+                console.error("Failed to delete feedback:", err);
+            });
+    });
+});
 // Nav dropdown (Hi, username menu)
 const navDropdownToggle = document.getElementById("nav-dropdown-toggle");
 const navDropdownMenu = document.getElementById("nav-dropdown-menu");
@@ -743,6 +755,56 @@ function enableDragToScroll(selector){
             const walk = x - startX;
             el.scrollLeft = scrollLeft - walk;
         });
+    });
+}
+
+const feedbackModal = document.getElementById("feedback-modal");
+const feedbackLink = document.getElementById("feedback-link");
+
+if (feedbackLink) {
+    feedbackLink.addEventListener("click", function(event){
+        event.preventDefault();
+        feedbackModal.classList.add("show");
+    });
+
+    document.getElementById("close-feedback-modal").addEventListener("click", function(){
+        feedbackModal.classList.remove("show");
+        document.getElementById("feedback-message").value = "";
+        document.getElementById("feedback-alert").classList.remove("show");
+    });
+
+    document.getElementById("submit-feedback-btn").addEventListener("click", function(){
+        const message = document.getElementById("feedback-message").value;
+        const alertBox = document.getElementById("feedback-alert");
+
+        if(message.trim() === ""){
+            alertBox.textContent = "Please write something before submitting.";
+            alertBox.classList.add("show");
+            return;
+        }
+
+        fetch("/submit_feedback", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: message })
+        })
+            .then(response => {
+                if(response.status === 401){
+                    window.location.href = "/login";
+                    return null;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if(!data) return;
+                feedbackModal.classList.remove("show");
+                document.getElementById("feedback-message").value = "";
+                alertBox.classList.remove("show");
+                showSpotSubmissionAlert("Thanks for the feedback!", false);
+            })
+            .catch(err => {
+                console.error("Failed to submit feedback:", err);
+            });
     });
 }
 
