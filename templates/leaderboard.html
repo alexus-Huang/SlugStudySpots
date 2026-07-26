@@ -6,6 +6,12 @@
     <h1>🏆 SlugSpots Leaderboard</h1>
     <p>Top contributors, ranked by points earned from approved spots, reviews, and likes.</p>
 
+    {% if top_users|length == 0 %}
+    <div class="empty-state">
+        <div class="empty-state-icon">🏆</div>
+        <p>No current leaders yet — be the first to earn points!</p>
+    </div>
+    {% endif %}
     <div class="leaderboard-list">
         {% for user in top_users %}
         <div class="leaderboard-row">

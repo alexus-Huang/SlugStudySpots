@@ -499,6 +499,7 @@ def leaderboard():
     top_users = connection.execute("""
         SELECT username, points
         FROM users
+        WHERE is_admin = 0
         ORDER BY points DESC
         LIMIT 20
     """).fetchall()

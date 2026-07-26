@@ -21,35 +21,42 @@ if (mapElement){
 
     // Icons
     const libraryIcon = L.icon({
-        iconUrl: "/static/images/library.png",
+        iconUrl: "/static/images/icons/library.png",
         iconSize: [30,30],
         iconAnchor: [15,30],
         popupAnchor: [0,-40]
     });
 
     const cafeIcon = L.icon({
-        iconUrl: "/static/images/coffee.png",
+        iconUrl: "/static/images/icons/coffee.png",
         iconSize: [30,30],
         iconAnchor: [15,30],
         popupAnchor: [0,-40]
     });
 
     const computerLabIcon = L.icon({
-        iconUrl: "/static/images/laptop.png",
+        iconUrl: "/static/images/icons/laptop.png",
         iconSize: [30,30],
         iconAnchor: [15,30],
         popupAnchor: [0,-40]
     });
 
     const natureIcon = L.icon({
-        iconUrl: "/static/images/tree.png",
+        iconUrl: "/static/images/icons/tree.png",
         iconSize: [30,30],
         iconAnchor: [15,30],
         popupAnchor: [0,-40]
     });
 
     const loungeIcon = L.icon({
-        iconUrl: "/static/images/lounge.png",
+        iconUrl: "/static/images/icons/lounge.png",
+        iconSize: [30,30],
+        iconAnchor: [15,30],
+        popupAnchor: [0,-40]
+    });
+
+    const otherIcon = L.icon({
+        iconUrl: "/static/images/icons/other.jpg",
         iconSize: [30,30],
         iconAnchor: [15,30],
         popupAnchor: [0,-40]
@@ -265,7 +272,9 @@ if (mapElement){
         else if (spot.category === "lounge") {
             icon = loungeIcon;
         }
-
+        else if (spot.category === "other") {
+            icon = otherIcon;
+        }
         const marker = L.marker([spot.latitude, spot.longitude], {icon: icon}).addTo(map);
 
         marker.on("click", function () {
