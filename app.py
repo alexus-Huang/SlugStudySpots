@@ -11,7 +11,8 @@ from better_profanity import profanity
 import os
 import uuid
 from werkzeug.utils import secure_filename
-load_dotenv()  # reads .env and loads it into environment variables
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+load_dotenv(os.path.join(BASE_DIR, ".env"))  # reads .env and loads it into environment variables
 
 app = Flask(__name__)
 create_database()
@@ -58,8 +59,8 @@ profanity.load_censor_words()
 
 # Slugspots.db file
 def get_db_connection():
-    connection = sqlite3.connect("slugspots.db")  # connect to slugspots database file
-    connection.row_factory = sqlite3.Row  # sqlite3.Row makes rows act like dictionaries; easier access (ex: row["name"])
+    connection = sqlite3.connect(os.path.join(BASE_DIR, "slugspots.db"))
+    connection.row_factory = sqlite3.Row
     return connection  # sends database the function
 
 def award_points(user_id, amount):

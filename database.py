@@ -1,4 +1,7 @@
 import sqlite3
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def create_database():
     conn = sqlite3.connect("slugspots.db")
@@ -134,7 +137,7 @@ def create_database():
         FOREIGN KEY (submitted_by) REFERENCES users(id)
     )
     """)
-    
+
     conn.commit()
     conn.close()
     
