@@ -81,6 +81,16 @@ nav .nav-dropdown-menu a:hover {
 .logo a {
     color: white;
     text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.logo-icon {
+    height: 44px;
+    width: 44px;
+    object-fit: contain;
+    vertical-align: middle;
 }
 
 .nav-links a {
