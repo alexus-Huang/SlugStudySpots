@@ -304,15 +304,6 @@ nav .nav-dropdown-menu a:hover {
     pointer-events: none;
 }
 
-.sheet-handle{
-    width:60px;
-    height:6px;
-    background:#ccc;
-    border-radius:20px;
-    margin:0 auto 20px auto;
-
-}
-
 #close-info {
     float: right;
     border: none;
