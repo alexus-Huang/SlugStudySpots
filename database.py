@@ -54,6 +54,26 @@ def create_database():
         cursor.execute("ALTER TABLE pending_spots ADD COLUMN images TEXT DEFAULT ''")
     except sqlite3.OperationalError:
         pass
+
+    try:
+        cursor.execute("ALTER TABLE users ADD COLUMN last_login TIMESTAMP")
+    except sqlite3.OperationalError:
+        pass
+
+    try:
+        cursor.execute("ALTER TABLE users ADD COLUMN login_count INTEGER DEFAULT 0")
+    except sqlite3.OperationalError:
+        pass
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS page_visits (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        path TEXT NOT NULL,
+        user_id INTEGER,
+        visited_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id)
+    )
+    """)
     # likes table
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS likes (

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="admin-page">
+    <h1>📊 Site Stats</h1>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_users }}</div>
+            <div class="stat-label">Total Users</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ returning_users }}</div>
+            <div class="stat-label">Returning Users</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ new_accounts_week }}</div>
+            <div class="stat-label">New Accounts (7 days)</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ total_visits }}</div>
+            <div class="stat-label">Total Page Visits</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ visits_today }}</div>
+            <div class="stat-label">Visits Today</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ visits_week }}</div>
+            <div class="stat-label">Visits (7 days)</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ total_spots }}</div>
+            <div class="stat-label">Approved Spots</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ total_reviews }}</div>
+            <div class="stat-label">Total Reviews</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ total_likes }}</div>
+            <div class="stat-label">Total Likes Given</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ total_feedback }}</div>
+            <div class="stat-label">Feedback Submitted</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ pending_spots_count }}</div>
+            <div class="stat-label">Pending Spots</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ pending_images_count }}</div>
+            <div class="stat-label">Pending Photos</div>
+        </div>
+    </div>
+
+    {% if top_contributor %}
+    <div class="about-card">
+        <h2>🏆 Top Contributor</h2>
+        <p>{{ top_contributor['username'] }} with {{ top_contributor['points'] }} points</p>
+    </div>
+    {% endif %}
+
+    {% if most_liked_spot and most_liked_spot['like_count'] > 0 %}
+    <div class="about-card">
+        <h2>❤️ Most-Liked Spot</h2>
+        <p>{{ most_liked_spot['name'] }} with {{ most_liked_spot['like_count'] }} likes</p>
+    </div>
+    {% endif %}
+</section>
+
+{% endblock %}

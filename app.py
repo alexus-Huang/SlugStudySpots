@@ -283,6 +283,15 @@ def login():
 
         user = User(row["id"], row["username"], row["points"], row["is_admin"])
         login_user(user)
+
+        connection2 = get_db_connection()
+        connection2.execute(
+            "UPDATE users SET last_login = CURRENT_TIMESTAMP, login_count = login_count + 1 WHERE id = ?",
+            (row["id"],)
+        )
+        connection2.commit()
+        connection2.close()
+
         return redirect(url_for('home'))
 
     return render_template('login.html')
@@ -604,6 +613,84 @@ def inject_pending_count():
         return {"pending_count": count}
     return {"pending_count": 0}
 
+TRACKED_PATHS = {"/", "/about", "/map", "/leaderboard", "/profile", "/signup", "/login"}
+
+@app.before_request
+def track_page_visit():
+    if request.path in TRACKED_PATHS:
+        connection = get_db_connection()
+        user_id = current_user.id if current_user.is_authenticated else None
+        connection.execute(
+            "INSERT INTO page_visits (path, user_id) VALUES (?, ?)",
+            (request.path, user_id)
+        )
+        connection.commit()
+        connection.close()
+
+@app.route("/admin/stats")
+@admin_required
+def admin_stats():
+    connection = get_db_connection()
+
+    total_users = connection.execute("SELECT COUNT(*) FROM users WHERE is_admin = 0").fetchone()[0]
+
+    returning_users = connection.execute(
+        "SELECT COUNT(*) FROM users WHERE login_count > 1 AND is_admin = 0"
+    ).fetchone()[0]
+
+    new_accounts_week = connection.execute(
+        "SELECT COUNT(*) FROM users WHERE created_at >= datetime('now', '-7 days') AND is_admin = 0"
+    ).fetchone()[0]
+
+    total_visits = connection.execute("SELECT COUNT(*) FROM page_visits").fetchone()[0]
+
+    visits_today = connection.execute(
+        "SELECT COUNT(*) FROM page_visits WHERE visited_at >= datetime('now', '-1 day')"
+    ).fetchone()[0]
+
+    visits_week = connection.execute(
+        "SELECT COUNT(*) FROM page_visits WHERE visited_at >= datetime('now', '-7 days')"
+    ).fetchone()[0]
+
+    total_spots = connection.execute("SELECT COUNT(*) FROM study_spots").fetchone()[0]
+    total_reviews = connection.execute("SELECT COUNT(*) FROM reviews").fetchone()[0]
+    total_likes = connection.execute("SELECT COUNT(*) FROM likes").fetchone()[0]
+    total_feedback = connection.execute("SELECT COUNT(*) FROM feedback").fetchone()[0]
+
+    top_contributor = connection.execute(
+        "SELECT username, points FROM users WHERE is_admin = 0 ORDER BY points DESC LIMIT 1"
+    ).fetchone()
+
+    most_liked_spot = connection.execute("""
+        SELECT study_spots.name, COUNT(likes.id) as like_count
+        FROM study_spots
+        LEFT JOIN likes ON likes.spot_id = study_spots.id
+        GROUP BY study_spots.id
+        ORDER BY like_count DESC
+        LIMIT 1
+    """).fetchone()
+
+    pending_spots_count = connection.execute("SELECT COUNT(*) FROM pending_spots").fetchone()[0]
+    pending_images_count = connection.execute("SELECT COUNT(*) FROM pending_images").fetchone()[0]
+
+    connection.close()
+
+    return render_template('admin_stats.html',
+        total_users=total_users,
+        returning_users=returning_users,
+        new_accounts_week=new_accounts_week,
+        total_visits=total_visits,
+        visits_today=visits_today,
+        visits_week=visits_week,
+        total_spots=total_spots,
+        total_reviews=total_reviews,
+        total_likes=total_likes,
+        total_feedback=total_feedback,
+        top_contributor=top_contributor,
+        most_liked_spot=most_liked_spot,
+        pending_spots_count=pending_spots_count,
+        pending_images_count=pending_images_count
+    )
 
 @app.route("/admin/users")
 @admin_required
