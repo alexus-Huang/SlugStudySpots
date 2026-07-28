@@ -167,12 +167,31 @@ if (mapElement){
 
     function openLightbox(index){
         currentImageIndex = index;
+        lightboxImage.style.transition = "none";
+        lightboxImage.style.transform = "translateX(0)";
+        lightboxImage.style.opacity = "1";
         lightboxImage.src = currentImages[currentImageIndex];
         lightbox.classList.add("show");
     }
 
-    function showLightboxImage(){
-        lightboxImage.src = currentImages[currentImageIndex];
+    function slideToImage(newIndex, direction){
+        const exitX = direction === "left" ? "-100%" : "100%";
+        const enterStartX = direction === "left" ? "100%" : "-100%";
+
+        lightboxImage.style.transition = "transform 0.25s ease, opacity 0.25s ease";
+        lightboxImage.style.transform = `translateX(${exitX})`;
+        lightboxImage.style.opacity = "0";
+
+        setTimeout(() => {
+            currentImageIndex = newIndex;
+            lightboxImage.src = currentImages[currentImageIndex];
+            lightboxImage.style.transition = "none";
+            lightboxImage.style.transform = `translateX(${enterStartX})`;
+            void lightboxImage.offsetWidth;
+            lightboxImage.style.transition = "transform 0.25s ease, opacity 0.25s ease";
+            lightboxImage.style.transform = "translateX(0)";
+            lightboxImage.style.opacity = "1";
+        }, 250);
     }
 
     document.getElementById("spot-images").addEventListener("click", function(event){
@@ -187,13 +206,13 @@ if (mapElement){
     });
 
     document.getElementById("lightbox-prev").addEventListener("click", function(){
-        currentImageIndex = (currentImageIndex - 1 + currentImages.length) % currentImages.length;
-        showLightboxImage();
+        const newIndex = (currentImageIndex - 1 + currentImages.length) % currentImages.length;
+        slideToImage(newIndex, "right");
     });
 
     document.getElementById("lightbox-next").addEventListener("click", function(){
-        currentImageIndex = (currentImageIndex + 1) % currentImages.length;
-        showLightboxImage();
+        const newIndex = (currentImageIndex + 1) % currentImages.length;
+        slideToImage(newIndex, "left");
     });
 
     lightbox.addEventListener("click", function(event){
@@ -215,23 +234,24 @@ if (mapElement){
     });
 
     function handleSwipeGesture(){
-        const swipeThreshold = 50; // minimum pixels to count as an intentional swipe
+        const swipeThreshold = 50;
         const swipeDistance = touchEndX - touchStartX;
 
         if(Math.abs(swipeDistance) < swipeThreshold){
-            return; // too small, probably just a tap, not a swipe
+            return;
         }
 
         if(swipeDistance < 0){
             // swiped left -> next image
-            currentImageIndex = (currentImageIndex + 1) % currentImages.length;
+            const newIndex = (currentImageIndex + 1) % currentImages.length;
+            slideToImage(newIndex, "left");
         } else {
             // swiped right -> previous image
-            currentImageIndex = (currentImageIndex - 1 + currentImages.length) % currentImages.length;
+            const newIndex = (currentImageIndex - 1 + currentImages.length) % currentImages.length;
+            slideToImage(newIndex, "right");
         }
-        showLightboxImage();
     }
-    
+
     function loadReviews(spotId){
         const reviewsContainer = document.getElementById("spot-reviews");
         reviewsContainer.innerHTML = "";
@@ -430,7 +450,7 @@ if (mapElement){
                 return response.json();
             })
             .then(data => {
-                if(!data) return; // we redirected above, nothing else to do
+                if(!data) return;
                 currentSpot.likes = data.likes;
                 currentSpot.user_has_liked = data.liked;
 
@@ -508,7 +528,7 @@ if (mapElement){
                 return response.json().then(data => ({ status: response.status, data: data }));
             })
             .then(result => {
-                if(!result) return; // redirected above
+                if(!result) return;
 
                 if(result.status === 409){
                     showReviewAlert(result.data.error); // "You've already reviewed this spot."
@@ -610,8 +630,6 @@ if (mapElement){
             return;
         }
 
-        // snapshot these BEFORE the async call, since they'll get reset
-        // before the fetch response comes back
         const coordsAtSubmit = selectedCoordinates;
         const tagsAtSubmit = [...suggestedTags];
 
