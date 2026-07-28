@@ -14,7 +14,17 @@ const mapElement = document.getElementById('map');
 
 if (mapElement){
     // Center map on UCSC
-    const map = L.map("map").setView(
+    const ucscBounds = L.latLngBounds(
+        [36.985, -122.075],  // southwest corner
+        [37.005, -122.045]   // northeast corner
+    );
+
+    const map = L.map("map", {
+        minZoom: 14,
+        maxZoom: 19,
+        maxBounds: ucscBounds,
+        maxBoundsViscosity: 1.0
+    }).setView(
         [36.99701977123666, -122.05963153125727],
         15
     );
