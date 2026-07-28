@@ -569,17 +569,21 @@ if (mapElement){
         const coordsAtSubmit = selectedCoordinates;
         const tagsAtSubmit = [...suggestedTags];
 
+        const formData = new FormData();
+        formData.append("name", name);
+        formData.append("category", category.toLowerCase());
+        formData.append("latitude", coordsAtSubmit[0]);
+        formData.append("longitude", coordsAtSubmit[1]);
+        formData.append("description", description);
+        formData.append("tags", tagsAtSubmit.join(","));
+
+        Array.from(imageUpload.files).forEach(file => {
+            formData.append("images", file);
+        });
+
         fetch("/submit_spot", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                name: name,
-                category: category.toLowerCase(),
-                latitude: coordsAtSubmit[0],
-                longitude: coordsAtSubmit[1],
-                description: description,
-                tags: tagsAtSubmit
-            })
+            body: formData
         })
         .then(response => {
             if(response.status === 401){

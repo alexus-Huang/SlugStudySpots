@@ -50,6 +50,10 @@ def create_database():
     except sqlite3.OperationalError:
         pass
 
+    try:
+        cursor.execute("ALTER TABLE pending_spots ADD COLUMN images TEXT DEFAULT ''")
+    except sqlite3.OperationalError:
+        pass
     # likes table
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS likes (

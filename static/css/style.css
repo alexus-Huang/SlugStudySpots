@@ -896,6 +896,21 @@ nav .nav-dropdown-menu a:hover {
     font-size: 14px;
 }
 
+.pending-images {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 15px 0;
+}
+
+.pending-image-preview {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
 .approve-btn {
     background: #e6f7ec;
     color: #1a7a3c;

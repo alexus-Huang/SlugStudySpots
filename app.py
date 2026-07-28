@@ -280,22 +280,46 @@ def logout():
 @app.route("/submit_spot", methods=["POST"])
 @login_required
 def submit_spot():
-    data = request.json
-    tags = data.get("tags", [])
+    name = request.form.get("name")
+    category = request.form.get("category")
+    latitude = request.form.get("latitude")
+    longitude = request.form.get("longitude")
+    description = request.form.get("description")
+    tags_raw = request.form.get("tags", "")
+    tags = tags_raw.split(",") if tags_raw else []
+
+    uploaded_files = request.files.getlist("images")
+    saved_filenames = []
+
+    for file in uploaded_files:
+        if file and file.filename != "" and allowed_image(file.filename):
+            file.seek(0, os.SEEK_END)
+            file_size = file.tell()
+            file.seek(0)
+
+            if file_size > MAX_IMAGE_SIZE:
+                continue  # skip oversized files rather than failing the whole submission
+
+            original_extension = file.filename.rsplit(".", 1)[1].lower()
+            unique_filename = f"{uuid.uuid4().hex}.{original_extension}"
+            upload_path = os.path.join(BASE_DIR, "static", "images", "pending", unique_filename)
+            file.save(upload_path)
+            saved_filenames.append(unique_filename)
 
     connection = get_db_connection()
     connection.execute("""
     INSERT INTO pending_spots
-    (name, category, latitude, longitude, description, tags, submitted_by)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    (name, category, latitude, longitude, description, tags, images, submitted_by)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     """,
     (
-        data["name"],
-        data["category"],
-        data["latitude"],
-        data["longitude"],
-        data["description"],
+        name,
+        category,
+        latitude,
+        longitude,
+        description,
         ",".join(tags),
+        ",".join(saved_filenames),
         current_user.id
     ))
 
@@ -480,10 +504,20 @@ def admin_approve(pending_id):
         connection.close()
         return jsonify({"error": "Not found"}), 404
 
+    pending_filenames = spot["images"].split(",") if spot["images"] else []
+    live_paths = []
+
+    for filename in pending_filenames:
+        old_path = os.path.join(BASE_DIR, "static", "images", "pending", filename)
+        new_path = os.path.join(BASE_DIR, "static", "images", filename)
+        if os.path.exists(old_path):
+            os.rename(old_path, new_path)
+            live_paths.append(f"/static/images/{filename}")
+
     connection.execute("""
-        INSERT INTO study_spots (name, category, latitude, longitude, description, tags, submitted_by)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    """, (spot["name"], spot["category"], spot["latitude"], spot["longitude"], spot["description"], spot["tags"], spot["submitted_by"]))
+        INSERT INTO study_spots (name, category, latitude, longitude, description, tags, images, submitted_by)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    """, (spot["name"], spot["category"], spot["latitude"], spot["longitude"], spot["description"], spot["tags"], ",".join(live_paths), spot["submitted_by"]))
 
     connection.execute("DELETE FROM pending_spots WHERE id = ?", (pending_id,))
     connection.commit()
@@ -498,6 +532,16 @@ def admin_approve(pending_id):
 @admin_required
 def admin_reject(pending_id):
     connection = get_db_connection()
+    spot = connection.execute(
+        "SELECT images FROM pending_spots WHERE id = ?", (pending_id,)
+    ).fetchone()
+
+    if spot and spot["images"]:
+        for filename in spot["images"].split(","):
+            file_path = os.path.join(BASE_DIR, "static", "images", "pending", filename)
+            if os.path.exists(file_path):
+                os.remove(file_path)
+
     connection.execute("DELETE FROM pending_spots WHERE id = ?", (pending_id,))
     connection.commit()
     connection.close()

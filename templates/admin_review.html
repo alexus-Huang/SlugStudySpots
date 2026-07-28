@@ -30,6 +30,14 @@
                 <p><strong>Submitted by:</strong> {{ spot['username'] }}</p>
                 <p><strong>Coordinates:</strong> {{ spot['latitude'] }}, {{ spot['longitude'] }}</p>
 
+                {% if spot['images'] %}
+                <div class="pending-images">
+                    {% for image in spot['images'].split(',') %}
+                    <img src="{{ url_for('static', filename='images/pending/' + image) }}" class="pending-image-preview" alt="Suggested photo">
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
                 <div class="pending-actions">
                     <button class="approve-btn" data-id="{{ spot['id'] }}">✅ Approve</button>
                     <button class="reject-btn" data-id="{{ spot['id'] }}">❌ Reject</button>
