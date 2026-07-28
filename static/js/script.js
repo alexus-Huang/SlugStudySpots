@@ -11,7 +11,7 @@ function showSpotSubmissionAlert(message, isError = true) {
     }
 
 const mapElement = document.getElementById('map');
-
+const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
 if (mapElement){
     // Center map on UCSC
     const ucscBounds = L.latLngBounds(
@@ -388,7 +388,10 @@ if (mapElement){
             return;
         }
 
-        fetch(`/like_spot/${currentSpot.id}`, { method: "POST" })
+        fetch(`/like_spot/${currentSpot.id}`, {
+            method: "POST",
+            headers: { "X-CSRFToken": csrfToken }
+        })
             .then(response => {
                 if(response.status === 401){
                     window.location.href = "/login";
@@ -461,7 +464,10 @@ if (mapElement){
 
         fetch(`/submit_review/${currentSpot.id}`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken
+            },
             body: JSON.stringify({ rating: rating, comment: comment })
         })
             .then(response => {
@@ -593,6 +599,7 @@ if (mapElement){
 
         fetch("/submit_spot", {
             method: "POST",
+            headers: { "X-CSRFToken": csrfToken },
             body: formData
         })
         .then(response => {
@@ -659,6 +666,7 @@ if (mapElement){
 
         fetch(`/submit_spot_image/${currentSpot.id}`, {
             method: "POST",
+            headers: { "X-CSRFToken": csrfToken },
             body: formData
         })
             .then(response => {
@@ -688,7 +696,10 @@ if (mapElement){
 document.querySelectorAll(".approve-btn").forEach(button => {
     button.addEventListener("click", function(){
         const id = this.dataset.id;
-        fetch(`/admin/approve/${id}`, { method: "POST" })
+        fetch(`/admin/approve/${id}`, {
+            method: "POST",
+            headers: { "X-CSRFToken": csrfToken }
+        })
             .then(response => response.json())
             .then(data => {
                 document.getElementById(`pending-${id}`).remove();
@@ -719,7 +730,10 @@ if (rejectConfirmModal) {
     document.getElementById("confirm-reject-btn").addEventListener("click", function(){
         if(!pendingRejectId) return;
 
-        fetch(`/admin/reject/${pendingRejectId}`, { method: "POST" })
+        fetch(`/admin/reject/${pendingRejectId}`, {
+            method: "POST",
+            headers: { "X-CSRFToken": csrfToken }
+        })
             .then(response => response.json())
             .then(data => {
                 document.getElementById(`pending-${pendingRejectId}`).remove();
@@ -735,7 +749,10 @@ if (rejectConfirmModal) {
 document.querySelectorAll(".delete-feedback-btn").forEach(button => {
     button.addEventListener("click", function(){
         const id = this.dataset.id;
-        fetch(`/admin/feedback/delete/${id}`, { method: "POST" })
+        fetch(`/admin/feedback/delete/${id}`, {
+            method: "POST",
+            headers: { "X-CSRFToken": csrfToken }
+        })
             .then(response => response.json())
             .then(data => {
                 document.getElementById(`feedback-${id}`).remove();
@@ -749,7 +766,10 @@ document.querySelectorAll(".delete-feedback-btn").forEach(button => {
 document.querySelectorAll(".approve-image-btn").forEach(button => {
     button.addEventListener("click", function(){
         const id = this.dataset.id;
-        fetch(`/admin/images/approve/${id}`, { method: "POST" })
+        fetch(`/admin/images/approve/${id}`, {
+            method: "POST",
+            headers: { "X-CSRFToken": csrfToken }
+        })
             .then(response => response.json())
             .then(data => {
                 document.getElementById(`pending-image-${id}`).remove();
@@ -763,7 +783,10 @@ document.querySelectorAll(".approve-image-btn").forEach(button => {
 document.querySelectorAll(".reject-image-btn").forEach(button => {
     button.addEventListener("click", function(){
         const id = this.dataset.id;
-        fetch(`/admin/images/reject/${id}`, { method: "POST" })
+        fetch(`/admin/images/reject/${id}`, {
+            method: "POST",
+            headers: { "X-CSRFToken": csrfToken }
+        })
             .then(response => response.json())
             .then(data => {
                 document.getElementById(`pending-image-${id}`).remove();
@@ -878,7 +901,10 @@ if (feedbackLink) {
 
         fetch("/submit_feedback", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken
+            },
             body: JSON.stringify({ message: message })
         })
             .then(response => {

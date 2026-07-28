@@ -3,3 +3,5 @@ werkzeug
 flask-login
 python-dotenv
 better-profanity
+flask-wtf
+flask-limiter

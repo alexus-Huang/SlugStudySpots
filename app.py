@@ -11,12 +11,23 @@ from better_profanity import profanity
 import os
 import uuid
 from werkzeug.utils import secure_filename
+from flask_wtf.csrf import CSRFProtect
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_limiter.errors import RateLimitExceeded
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 load_dotenv(os.path.join(BASE_DIR, ".env"))  # reads .env and loads it into environment variables
 
 app = Flask(__name__)
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["200 per day", "50 per hour"]
+)
 create_database()
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
+csrf = CSRFProtect(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -28,6 +39,10 @@ def unauthorized():
     if request.path.startswith("/like_spot") or request.path.startswith("/submit_spot") or request.path.startswith("/submit_review") or request.path.startswith("/submit_feedback") or request.path.startswith("/submit_spot_image"):
         return jsonify({"error": "login_required"}), 401
     return redirect(url_for('login'))
+
+@app.errorhandler(RateLimitExceeded)
+def handle_rate_limit(e):
+    return render_template('rate_limited.html'), 429
 
 def admin_required(f):
     @wraps(f)
@@ -193,6 +208,7 @@ def map():
     return render_template('map.html')
 
 @app.route("/signup", methods=["GET", "POST"])
+@limiter.limit("5 per minute")
 def signup():
     if request.method == "POST":
         username = request.form.get("username", "").strip()
@@ -251,6 +267,7 @@ def signup():
     return render_template('signup.html')
 
 @app.route("/login", methods=["GET", "POST"])
+@limiter.limit("5 per minute")
 def login():
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()
@@ -664,7 +681,7 @@ def submit_spot_image(spot_id):
     original_extension = file.filename.rsplit(".", 1)[1].lower()
     unique_filename = f"{uuid.uuid4().hex}.{original_extension}"
 
-    upload_path = os.path.join("static", "images", "pending", unique_filename)
+    upload_path = os.path.join(BASE_DIR, "static", "images", "pending", unique_filename)
     file.save(upload_path)
 
     connection = get_db_connection()
@@ -711,8 +728,8 @@ def admin_approve_image(pending_id):
     existing_images = spot["images"].split(",") if spot["images"] else []
     new_path = f"/static/images/{pending_image['filename']}"
 
-    old_full_path = os.path.join("static", "images", "pending", pending_image["filename"])
-    new_full_path = os.path.join("static", "images", pending_image["filename"])
+    old_full_path = os.path.join(BASE_DIR, "static", "images", "pending", pending_image["filename"])
+    new_full_path = os.path.join(BASE_DIR, "static", "images", pending_image["filename"])
     os.rename(old_full_path, new_full_path)
 
     existing_images.append(new_path)
@@ -736,7 +753,7 @@ def admin_reject_image(pending_id):
     ).fetchone()
 
     if pending_image is not None:
-        file_path = os.path.join("static", "images", "pending", pending_image["filename"])
+        file_path = os.path.join(BASE_DIR, "static", "images", "pending", pending_image["filename"])
         if os.path.exists(file_path):
             os.remove(file_path)
 
