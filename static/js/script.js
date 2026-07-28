@@ -202,6 +202,36 @@ if (mapElement){
         }
     });
 
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    lightbox.addEventListener("touchstart", function(event){
+        touchStartX = event.changedTouches[0].screenX;
+    });
+
+    lightbox.addEventListener("touchend", function(event){
+        touchEndX = event.changedTouches[0].screenX;
+        handleSwipeGesture();
+    });
+
+    function handleSwipeGesture(){
+        const swipeThreshold = 50; // minimum pixels to count as an intentional swipe
+        const swipeDistance = touchEndX - touchStartX;
+
+        if(Math.abs(swipeDistance) < swipeThreshold){
+            return; // too small, probably just a tap, not a swipe
+        }
+
+        if(swipeDistance < 0){
+            // swiped left -> next image
+            currentImageIndex = (currentImageIndex + 1) % currentImages.length;
+        } else {
+            // swiped right -> previous image
+            currentImageIndex = (currentImageIndex - 1 + currentImages.length) % currentImages.length;
+        }
+        showLightboxImage();
+    }
+    
     function loadReviews(spotId){
         const reviewsContainer = document.getElementById("spot-reviews");
         reviewsContainer.innerHTML = "";

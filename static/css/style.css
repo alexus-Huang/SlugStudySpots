@@ -1272,6 +1272,10 @@ nav .nav-dropdown-menu a:hover {
         width: 70px;
         height: 70px;
     }
+
+    .lightbox-nav {
+        display: none;
+    }
 }
 
 /* Admin User Page */
