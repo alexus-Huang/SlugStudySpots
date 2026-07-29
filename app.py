@@ -197,7 +197,7 @@ def load_user(user_id):
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return render_template('map.html')
 
 @app.route('/about')
 def about():
@@ -205,7 +205,7 @@ def about():
 
 @app.route('/map')
 def map():
-    return render_template('map.html')
+    return redirect(url_for('home'))
 
 @app.route("/signup", methods=["GET", "POST"])
 @limiter.limit("5 per minute")

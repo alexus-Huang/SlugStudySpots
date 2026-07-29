@@ -19,9 +19,7 @@
     </div>
     <button id="nav-hamburger" class="nav-hamburger">☰</button>
         <div class="nav-links">
-            <a href="/">Home</a>
             <a href="/about">About</a>
-            <a href="/map">Map</a>
             <a href="{{ url_for('leaderboard') }}">Leaderboard</a>
             {% if current_user.is_authenticated %}
             <div class="nav-dropdown">

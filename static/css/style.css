@@ -4,12 +4,27 @@ body {
     background-color: #f5f7fa;
 }
 
+:root {
+    --ucsc-gold: #F5C542;
+    --ucsc-gold-text: #4a3600;
+}
+
 nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
     background-color: #003c6c;
     padding: 15px 30px;
+    border-bottom: 3px solid var(--ucsc-gold);
+}
+
+.home-header {
+    margin-bottom: 20px;
+}
+
+.home-header h1 {
+    font-size: clamp(28px, 5vw, 48px);
+    margin: 0 0 8px 0;
 }
 
 .nav-dropdown {
@@ -982,6 +997,7 @@ nav .nav-dropdown-menu a:hover {
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
+
 .leaderboard-rank {
     font-weight: bold;
     color: #003c6c;
@@ -1030,6 +1046,7 @@ nav .nav-dropdown-menu a:hover {
     border-radius: 15px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     text-align: center;
+    border-top: 4px solid var(--ucsc-gold);
 }
 
 .badge-icon {
