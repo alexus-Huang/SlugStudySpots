@@ -65,6 +65,11 @@ def create_database():
     except sqlite3.OperationalError:
         pass
 
+    try:
+        cursor.execute("ALTER TABLE reviews ADD COLUMN edited_at TIMESTAMP")
+    except sqlite3.OperationalError:
+        pass
+    
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS page_visits (
         id INTEGER PRIMARY KEY AUTOINCREMENT,

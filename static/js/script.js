@@ -264,11 +264,20 @@ if (mapElement){
             .then(response => response.json())
             .then(reviews => {
                 reviews.forEach(review => {
+                    const editedLabel = review.edited ? '<span class="edited-label">(edited)</span>' : '';
+                    const ownerButtons = review.is_owner
+                        ? `<div class="review-owner-actions">
+                            <button class="edit-review-btn" data-id="${review.id}" data-rating="${review.rating}">✏️ Edit</button>
+                            <button class="delete-review-btn" data-id="${review.id}">🗑️ Delete</button>
+                        </div>`
+                        : '';
+
                     reviewsContainer.innerHTML += `
-                    <div class="review-card">
-                        <strong>${escapeHtml(review.username)}</strong>
+                    <div class="review-card" id="review-${review.id}" data-comment="${escapeHtml(review.comment)}">
+                        <strong>${escapeHtml(review.username)}</strong> ${editedLabel}
                         <p>${"⭐".repeat(review.rating)}</p>
-                        <p>${escapeHtml(review.comment)}</p>
+                        <p class="review-comment-text">${escapeHtml(review.comment)}</p>
+                        ${ownerButtons}
                     </div>
                     `;
                 });
@@ -736,6 +745,100 @@ if (mapElement){
             .catch(err => {
                 console.error("Failed to upload photo:", err);
                 showSpotSubmissionAlert("Something went wrong uploading your photo.");
+            });
+    });
+
+    // Edit Review
+    let editingReviewId = null;
+    const editReviewModal = document.getElementById("edit-review-modal");
+
+    document.getElementById("spot-reviews").addEventListener("click", function(event){
+        if(event.target.classList.contains("edit-review-btn")){
+            editingReviewId = event.target.dataset.id;
+            const currentRating = event.target.dataset.rating;
+            const card = document.getElementById(`review-${editingReviewId}`);
+            const currentComment = card.dataset.comment;
+
+            document.getElementById("edit-review-rating").value = currentRating;
+            document.getElementById("edit-review-comment").value = currentComment;
+            editReviewModal.classList.add("show");
+        }
+
+        if(event.target.classList.contains("delete-review-btn")){
+            pendingDeleteReviewId = event.target.dataset.id;
+            deleteReviewConfirmModal.classList.add("show");
+        }
+    });
+
+    document.getElementById("close-edit-review-modal").addEventListener("click", function(){
+        editReviewModal.classList.remove("show");
+        editingReviewId = null;
+    });
+
+    document.getElementById("submit-edit-review").addEventListener("click", function(){
+        if(!editingReviewId) return;
+
+        const rating = Number(document.getElementById("edit-review-rating").value);
+        const comment = document.getElementById("edit-review-comment").value;
+        const alertBox = document.getElementById("edit-review-alert");
+
+        if(comment.trim() === ""){
+            alertBox.textContent = "Review cannot be empty.";
+            alertBox.classList.add("show");
+            return;
+        }
+
+        fetch(`/edit_review/${editingReviewId}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken
+            },
+            body: JSON.stringify({ rating: rating, comment: comment })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if(data.error){
+                    alertBox.textContent = data.error;
+                    alertBox.classList.add("show");
+                    return;
+                }
+                editReviewModal.classList.remove("show");
+                alertBox.classList.remove("show");
+                editingReviewId = null;
+                loadReviews(currentSpot.id);
+                refreshCurrentSpotData();
+            })
+            .catch(err => {
+                console.error("Failed to edit review:", err);
+            });
+    });
+    // Delete Review
+    let pendingDeleteReviewId = null;
+    const deleteReviewConfirmModal = document.getElementById("delete-review-confirm-modal");
+
+    document.getElementById("cancel-delete-review-btn").addEventListener("click", function(){
+        pendingDeleteReviewId = null;
+        deleteReviewConfirmModal.classList.remove("show");
+    });
+
+    document.getElementById("confirm-delete-review-btn").addEventListener("click", function(){
+        if(!pendingDeleteReviewId) return;
+
+        fetch(`/delete_review/${pendingDeleteReviewId}`, {
+            method: "POST",
+            headers: { "X-CSRFToken": csrfToken }
+        })
+            .then(response => response.json())
+            .then(data => {
+                deleteReviewConfirmModal.classList.remove("show");
+                pendingDeleteReviewId = null;
+                loadReviews(currentSpot.id);
+                refreshCurrentSpotData();
+                showSpotSubmissionAlert("Review deleted", false);
+            })
+            .catch(err => {
+                console.error("Failed to delete review:", err);
             });
     });
 }

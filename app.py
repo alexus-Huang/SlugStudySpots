@@ -36,7 +36,7 @@ login_manager.login_view = "login"
 @login_manager.unauthorized_handler
 def unauthorized():
     # redirect — a fetch() call can't "navigate" the browser on its own.
-    if request.path.startswith("/like_spot") or request.path.startswith("/submit_spot") or request.path.startswith("/submit_review") or request.path.startswith("/submit_feedback") or request.path.startswith("/submit_spot_image"):
+    if request.path.startswith("/like_spot") or request.path.startswith("/submit_spot") or request.path.startswith("/submit_review") or request.path.startswith("/submit_feedback") or request.path.startswith("/submit_spot_image") or request.path.startswith("/edit_review") or request.path.startswith("/delete_review"):
         return jsonify({"error": "login_required"}), 401
     return redirect(url_for('login'))
 
@@ -449,7 +449,7 @@ def like_spot(spot_id):
 def get_reviews(spot_id):
     connection = get_db_connection()
     reviews = connection.execute("""
-        SELECT reviews.rating, reviews.comment, reviews.created_at, users.username
+        SELECT reviews.id, reviews.rating, reviews.comment, reviews.created_at, reviews.edited_at, reviews.user_id, users.username
         FROM reviews
         JOIN users ON reviews.user_id = users.id
         WHERE reviews.spot_id = ?
@@ -460,9 +460,12 @@ def get_reviews(spot_id):
     result = []
     for review in reviews:
         result.append({
+            "id": review["id"],
             "username": review["username"],
             "rating": review["rating"],
-            "comment": review["comment"]
+            "comment": review["comment"],
+            "edited": review["edited_at"] is not None,
+            "is_owner": current_user.is_authenticated and review["user_id"] == current_user.id
         })
 
     return jsonify(result)
@@ -502,6 +505,72 @@ def submit_review(spot_id):
     check_spot_popularity_badges(spot_id)
 
     return jsonify({"message": "Review submitted successfully"})
+
+@app.route("/edit_review/<int:review_id>", methods=["POST"])
+@login_required
+def edit_review(review_id):
+    data = request.json
+    rating = data.get("rating")
+    comment = data.get("comment", "").strip()
+
+    if not comment:
+        return jsonify({"error": "Review cannot be empty."}), 400
+
+    if profanity.contains_profanity(comment):
+        return jsonify({"error": "Please remove inappropriate language from your review."}), 400
+
+    if not isinstance(rating, int) or rating < 1 or rating > 5:
+        return jsonify({"error": "Rating must be between 1 and 5."}), 400
+
+    connection = get_db_connection()
+    review = connection.execute(
+        "SELECT * FROM reviews WHERE id = ?", (review_id,)
+    ).fetchone()
+
+    if review is None:
+        connection.close()
+        return jsonify({"error": "Review not found."}), 404
+
+    if review["user_id"] != current_user.id:
+        connection.close()
+        return jsonify({"error": "You can only edit your own reviews."}), 403
+
+    connection.execute(
+        "UPDATE reviews SET rating = ?, comment = ?, edited_at = CURRENT_TIMESTAMP WHERE id = ?",
+        (rating, comment, review_id)
+    )
+    connection.commit()
+    connection.close()
+
+    check_spot_popularity_badges(review["spot_id"])
+
+    return jsonify({"message": "Review updated successfully"})
+
+
+@app.route("/delete_review/<int:review_id>", methods=["POST"])
+@login_required
+def delete_review(review_id):
+    connection = get_db_connection()
+    review = connection.execute(
+        "SELECT * FROM reviews WHERE id = ?", (review_id,)
+    ).fetchone()
+
+    if review is None:
+        connection.close()
+        return jsonify({"error": "Review not found."}), 404
+
+    if review["user_id"] != current_user.id:
+        connection.close()
+        return jsonify({"error": "You can only delete your own reviews."}), 403
+
+    connection.execute("DELETE FROM reviews WHERE id = ?", (review_id,))
+    connection.commit()
+    connection.close()
+
+    award_points(current_user.id, -5)
+    check_spot_popularity_badges(review["spot_id"])
+
+    return jsonify({"message": "Review deleted"})
 
 # Admin
 @app.route("/admin/review")

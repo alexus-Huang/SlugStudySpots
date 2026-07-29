@@ -144,7 +144,33 @@
         <button id="submit-review">Submit Review</button>
     </div>
 </div>
-
+<div id="edit-review-modal" class="suggest-modal">
+    <div class="modal-content">
+        <button id="close-edit-review-modal">✖</button>
+        <h2>Edit Your Review</h2>
+        <label>Rating</label>
+        <select id="edit-review-rating">
+            <option value="5">⭐⭐⭐⭐⭐</option>
+            <option value="4">⭐⭐⭐⭐</option>
+            <option value="3">⭐⭐⭐</option>
+            <option value="2">⭐⭐</option>
+            <option value="1">⭐</option>
+        </select>
+        <textarea id="edit-review-comment" placeholder="Share your experience..."></textarea>
+        <div id="edit-review-alert" class="review-alert"></div>
+        <button id="submit-edit-review">Save Changes</button>
+    </div>
+</div>
+<div id="delete-review-confirm-modal" class="suggest-modal">
+    <div class="modal-content">
+        <h2>Delete this review?</h2>
+        <p>This will permanently remove your review. This can't be undone.</p>
+        <div class="confirm-actions">
+            <button id="confirm-delete-review-btn" class="reject-btn">Yes, Delete</button>
+            <button id="cancel-delete-review-btn">Cancel</button>
+        </div>
+    </div>
+</div>
 <div id="image-lightbox" class="image-lightbox">
     <button id="lightbox-close" class="lightbox-close">✖</button>
     <button id="lightbox-prev" class="lightbox-nav lightbox-prev">‹</button>
