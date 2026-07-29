@@ -425,13 +425,6 @@ nav .nav-dropdown-menu a:hover {
     margin-top:25px;
 }
 
-.review-card{
-    background:#f8f8f8;
-    padding:15px;
-    border-radius:12px;
-    margin-bottom:15px;
-}
-
 .review-card strong{
     color:#003c6c;
 }
@@ -1464,10 +1457,21 @@ nav .nav-dropdown-menu a:hover {
     font-style: italic;
 }
 
+.review-card {
+    background:#f8f8f8;
+    padding:15px;
+    border-radius:12px;
+    margin-bottom:15px;
+    position: relative;
+}
+
 .review-owner-actions {
+    position: absolute;
+    top: 12px;
+    right: 12px;
     display: flex;
-    gap: 10px;
-    margin-top: 10px;
+    gap: 8px;
+    margin-top: 0;
 }
 
 .review-owner-actions button {
