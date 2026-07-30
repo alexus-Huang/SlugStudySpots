@@ -739,6 +739,7 @@ nav .nav-dropdown-menu a:hover {
 .auth-card h1 {
     color: #003c6c;
     margin-bottom: 25px;
+    font-size: clamp(24px, 4vw, 32px);
 }
 
 .auth-form {
@@ -867,6 +868,10 @@ nav .nav-dropdown-menu a:hover {
     margin: 0 auto;
 }
 
+.admin-page h1 {
+    font-size: clamp(24px, 4vw, 36px);
+}
+
 .pending-list {
     display: flex;
     flex-direction: column;
@@ -980,6 +985,13 @@ nav .nav-dropdown-menu a:hover {
     text-align: center;
 }
 
+.leaderboard-page h1 {
+    font-size: clamp(26px, 5vw, 38px);
+}
+
+.profile-page h1 {
+    font-size: clamp(26px, 5vw, 38px);
+}
 .leaderboard-list {
     margin-top: 30px;
     display: flex;
@@ -1321,6 +1333,7 @@ nav .nav-dropdown-menu a:hover {
 .about-page h1 {
     color: #003c6c;
     text-align: center;
+    font-size: clamp(28px, 5vw, 40px);
 }
 
 .about-intro {
