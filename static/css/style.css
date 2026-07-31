@@ -1561,3 +1561,36 @@ nav .nav-dropdown-menu a:hover {
     font-size: 15px;
     font-family: Arial, Helvetica, sans-serif;
 }
+.my-reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+    text-align: left;
+}
+
+.my-review-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+.my-review-spot-name {
+    font-weight: bold;
+    color: #003c6c;
+    font-size: 16px;
+    text-decoration: none;
+    padding-right: 90px;
+    display: inline-block;
+}
+
+.my-review-spot-name:hover {
+    text-decoration: underline;
+}
+
+.my-review-comment {
+    color: #444;
+    margin-top: 8px;
+}

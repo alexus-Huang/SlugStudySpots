@@ -105,10 +105,23 @@ if (mapElement){
             .then(data => {
                 studySpots = data;
                 studySpots.forEach(addStudySpotToMap);
+                openSpotFromUrlIfPresent();
             })
             .catch(err => {
                 console.error("Failed to load spots:", err);
             });
+    }
+
+    function openSpotFromUrlIfPresent(){
+        const params = new URLSearchParams(window.location.search);
+        const spotId = params.get("spot");
+        if(!spotId) return;
+
+        const targetSpot = studySpots.find(spot => spot.id === Number(spotId));
+        if(targetSpot){
+            map.setView([targetSpot.latitude, targetSpot.longitude], 17);
+            openStudySpot(targetSpot);
+        }
     }
 
     let selectedTags = [];
@@ -1080,3 +1093,92 @@ if (feedbackLink) {
 
 enableDragToScroll(".filter-bar");
 enableDragToScroll(".tag-filter-bar");
+
+const profileEditReviewModal = document.getElementById("profile-edit-review-modal");
+
+if (profileEditReviewModal) {
+    let profileEditingReviewId = null;
+    let profilePendingDeleteReviewId = null;
+    const profileDeleteConfirmModal = document.getElementById("profile-delete-review-confirm-modal");
+
+    document.querySelectorAll(".profile-edit-review-btn").forEach(button => {
+        button.addEventListener("click", function(){
+            profileEditingReviewId = this.dataset.id;
+            const currentRating = this.dataset.rating;
+            const card = document.getElementById(`my-review-${profileEditingReviewId}`);
+            const currentComment = card.dataset.comment;
+
+            document.getElementById("profile-edit-review-rating").value = currentRating;
+            document.getElementById("profile-edit-review-comment").value = currentComment;
+            profileEditReviewModal.classList.add("show");
+        });
+    });
+
+    document.getElementById("close-profile-edit-review-modal").addEventListener("click", function(){
+        profileEditReviewModal.classList.remove("show");
+        profileEditingReviewId = null;
+    });
+
+    document.getElementById("profile-submit-edit-review").addEventListener("click", function(){
+        if(!profileEditingReviewId) return;
+
+        const rating = Number(document.getElementById("profile-edit-review-rating").value);
+        const comment = document.getElementById("profile-edit-review-comment").value;
+        const alertBox = document.getElementById("profile-edit-review-alert");
+
+        if(comment.trim() === ""){
+            alertBox.textContent = "Review cannot be empty.";
+            alertBox.classList.add("show");
+            return;
+        }
+
+        fetch(`/edit_review/${profileEditingReviewId}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken
+            },
+            body: JSON.stringify({ rating: rating, comment: comment })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if(data.error){
+                    alertBox.textContent = data.error;
+                    alertBox.classList.add("show");
+                    return;
+                }
+                window.location.reload();
+            })
+            .catch(err => {
+                console.error("Failed to edit review:", err);
+            });
+    });
+
+    document.querySelectorAll(".profile-delete-review-btn").forEach(button => {
+        button.addEventListener("click", function(){
+            profilePendingDeleteReviewId = this.dataset.id;
+            profileDeleteConfirmModal.classList.add("show");
+        });
+    });
+
+    document.getElementById("profile-cancel-delete-review-btn").addEventListener("click", function(){
+        profilePendingDeleteReviewId = null;
+        profileDeleteConfirmModal.classList.remove("show");
+    });
+
+    document.getElementById("profile-confirm-delete-review-btn").addEventListener("click", function(){
+        if(!profilePendingDeleteReviewId) return;
+
+        fetch(`/delete_review/${profilePendingDeleteReviewId}`, {
+            method: "POST",
+            headers: { "X-CSRFToken": csrfToken }
+        })
+            .then(response => response.json())
+            .then(data => {
+                window.location.reload();
+            })
+            .catch(err => {
+                console.error("Failed to delete review:", err);
+            });
+    });
+}

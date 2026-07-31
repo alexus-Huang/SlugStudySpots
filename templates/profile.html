@@ -21,6 +21,56 @@
         </div>
         {% endfor %}
     </div>
+    <h2>My Reviews</h2>
+
+    {% if my_reviews|length == 0 %}
+    <div class="empty-state">
+        <div class="empty-state-icon">✍️</div>
+        <p>You haven't written any reviews yet.</p>
+    </div>
+    {% endif %}
+
+    <div class="my-reviews-list">
+        {% for review in my_reviews %}
+        <div class="my-review-card" id="my-review-{{ review['id'] }}" data-comment="{{ review['comment'] }}">
+            <a href="{{ url_for('home') }}?spot={{ review['spot_id'] }}" class="my-review-spot-name">{{ review['spot_name'] }}</a>
+            <p>{{ "⭐" * review['rating'] }}</p>
+            <p class="my-review-comment">{{ review['comment'] }}</p>
+            <div class="review-owner-actions">
+                <button class="profile-edit-review-btn" data-id="{{ review['id'] }}" data-rating="{{ review['rating'] }}">✏️ Edit</button>
+                <button class="profile-delete-review-btn" data-id="{{ review['id'] }}">🗑️ Delete</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div id="profile-edit-review-modal" class="suggest-modal">
+    <div class="modal-content">
+        <button id="close-profile-edit-review-modal">✖</button>
+        <h2>Edit Your Review</h2>
+        <label>Rating</label>
+        <select id="profile-edit-review-rating">
+            <option value="5">⭐⭐⭐⭐⭐</option>
+            <option value="4">⭐⭐⭐⭐</option>
+            <option value="3">⭐⭐⭐</option>
+            <option value="2">⭐⭐</option>
+            <option value="1">⭐</option>
+        </select>
+        <textarea id="profile-edit-review-comment" placeholder="Share your experience..."></textarea>
+        <div id="profile-edit-review-alert" class="review-alert"></div>
+        <button id="profile-submit-edit-review">Save Changes</button>
+    </div>
+</div>
+
+<div id="profile-delete-review-confirm-modal" class="suggest-modal">
+    <div class="modal-content">
+        <h2>Delete this review?</h2>
+        <p>This will permanently remove your review. This can't be undone.</p>
+        <div class="confirm-actions">
+            <button id="profile-confirm-delete-review-btn" class="reject-btn">Yes, Delete</button>
+            <button id="profile-cancel-delete-review-btn">Cancel</button>
+        </div>
+    </div>
+</div>
 </section>
 
 {% endblock %}

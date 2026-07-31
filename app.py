@@ -669,9 +669,18 @@ def profile():
         ORDER BY user_badges.earned_at DESC
     """, (current_user.id,)).fetchall()
 
+    my_reviews = connection.execute("""
+        SELECT reviews.id, reviews.rating, reviews.comment, reviews.created_at,
+               study_spots.id as spot_id, study_spots.name as spot_name
+        FROM reviews
+        JOIN study_spots ON reviews.spot_id = study_spots.id
+        WHERE reviews.user_id = ?
+        ORDER BY reviews.created_at DESC
+    """, (current_user.id,)).fetchall()
+
     connection.close()
 
-    return render_template('profile.html', badges=earned_badges)
+    return render_template('profile.html', badges=earned_badges, my_reviews=my_reviews)
 
 @app.context_processor
 def inject_pending_count():
