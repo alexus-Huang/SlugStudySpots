@@ -19,8 +19,9 @@
     </div>
     <button id="nav-hamburger" class="nav-hamburger">☰</button>
         <div class="nav-links">
-            <a href="/about">About</a>
-            <a href="{{ url_for('leaderboard') }}">Leaderboard</a>
+            <a href="{{ url_for('home') }}" class="{{ 'nav-pill-active' if request.path == '/' else '' }}">Map</a>
+            <a href="{{ url_for('about') }}" class="{{ 'nav-pill-active' if request.path == '/about' else '' }}">About</a>
+            <a href="{{ url_for('leaderboard') }}" class="{{ 'nav-pill-active' if request.path == '/leaderboard' else '' }}">Leaderboard</a>
             {% if current_user.is_authenticated %}
             <div class="nav-dropdown">
                 <button id="nav-dropdown-toggle" class="nav-greeting-btn">

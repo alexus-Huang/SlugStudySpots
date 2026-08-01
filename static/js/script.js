@@ -381,19 +381,16 @@ if (mapElement){
             let categoryMatch = true;
             let tagsMatch = true;
 
-            // Check category
             if(selectedCategory !== "all"){
                 categoryMatch = item.category === selectedCategory;
             }
 
-            // Check the tags
             if(selectedTags.length > 0){
                 tagsMatch = selectedTags.every(tag =>{
                     return item.tags.includes(tag)
                 });
             }
 
-            // Show spot on map if its a match
             if(categoryMatch && tagsMatch){
                 item.marker.addTo(map);
             }
@@ -401,6 +398,14 @@ if (mapElement){
                 map.removeLayer(item.marker);
             }
         });
+
+        updateClearFiltersVisibility();
+    }
+
+    function updateClearFiltersVisibility(){
+        const clearBtn = document.getElementById("clear-filters");
+        const hasActiveFilter = selectedCategory !== "all" || selectedTags.length > 0;
+        clearBtn.classList.toggle("hidden-filter-btn", !hasActiveFilter);
     }
 
     // Filter Btn Detector

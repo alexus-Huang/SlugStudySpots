@@ -111,11 +111,25 @@ nav .nav-dropdown-menu a:hover {
 .nav-links a {
     color: white;
     text-decoration: none;
-    margin-left: 25px;
+    margin-left: 12px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    transition: background 0.2s ease;
 }
 
 .nav-links a:hover {
-    text-decoration: underline;
+    background: rgba(255,255,255,0.1);
+    text-decoration: none;
+}
+
+.nav-links a.nav-pill-active {
+    background: var(--ucsc-gold);
+    color: #4a3600;
+    font-weight: bold;
+}
+
+.hidden-filter-btn {
+    display: none !important;
 }
 
 .hero {
@@ -363,18 +377,18 @@ nav .nav-dropdown-menu a:hover {
 }
 
 #clear-filters {
-    margin-top: 15px;
-    padding: 10px 20px;
+    background: none;
     border: none;
-    border-radius: 20px;
-    background-color: #ddd;
-    cursor: pointer;
+    color: #a30000;
     font-size: 14px;
+    cursor: pointer;
+    padding: 8px 12px;
+    margin-top: 0;
 }
 
-
 #clear-filters:hover {
-    background-color: #bbb;
+    background: none;
+    text-decoration: none;
 }
 
 /* Tag Filters */
