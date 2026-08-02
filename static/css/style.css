@@ -1719,6 +1719,52 @@ nav .nav-dropdown-menu a:hover {
     font-size: 15px;
     font-family: Arial, Helvetica, sans-serif;
 }
+
+#close-profile-edit-review-modal {
+    position: absolute;
+    top: 12px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+#close-profile-edit-review-modal:hover {
+    color: #003c6c;
+}
+
+#profile-submit-edit-review {
+    background: #003c6c;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#profile-submit-edit-review:hover {
+    opacity: 0.85;
+}
+
+#profile-edit-review-rating {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+#profile-edit-review-comment {
+    min-height: 120px;
+    max-height: 250px;
+    resize: none;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: Arial, Helvetica, sans-serif;
+}
 .my-reviews-list {
     display: flex;
     flex-direction: column;
