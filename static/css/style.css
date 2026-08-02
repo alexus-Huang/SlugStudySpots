@@ -1108,6 +1108,99 @@ nav .nav-dropdown-menu a:hover {
     margin-bottom: 30px;
 }
 
+.profile-header-card {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    padding: 25px 30px;
+    text-align: left;
+    margin-bottom: 30px;
+}
+
+.profile-avatar {
+    font-size: 48px;
+    background: var(--ucsc-gold);
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.profile-header-info {
+    flex: 1;
+}
+
+.profile-points-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 6px 0 10px;
+}
+
+.profile-points-big {
+    font-weight: bold;
+    color: #1a7a3c;
+    font-size: 18px;
+}
+
+.profile-next-tier {
+    font-size: 13px;
+    color: #888;
+}
+
+.progress-track {
+    background: #eee;
+    border-radius: 20px;
+    height: 12px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    background: var(--ucsc-gold);
+    height: 100%;
+    border-radius: 20px;
+    transition: width 0.3s ease;
+    width: var(--progress-width);
+}
+
+.badge-locked {
+    opacity: 0.4;
+    filter: grayscale(1);
+}
+
+.my-spots-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.my-spot-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 15px 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    text-align: left;
+}
+
+.my-spot-name {
+    font-weight: bold;
+    color: #003c6c;
+}
+
+.my-spot-stats {
+    color: #666;
+    font-size: 14px;
+}
 .badge-grid {
     display: flex;
     flex-wrap: wrap;

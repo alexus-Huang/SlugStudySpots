@@ -78,6 +78,7 @@ def get_db_connection():
     connection.row_factory = sqlite3.Row
     return connection  # sends database the function
 
+# Awards
 def award_points(user_id, amount):
     if user_id is None:
         return  # no submitter to credit (e.g. one of the original seeded spots)
@@ -99,6 +100,14 @@ def award_badge(user_id, badge_code):
     )
     connection.commit()
     connection.close()
+
+POINT_TIERS = [20, 40, 60, 80, 100, 120, 140]
+
+def get_next_tier(points):
+    for tier in POINT_TIERS:
+        if points < tier:
+            return tier
+    return None  # user has surpassed all tiers
 
 def check_submission_badges(user_id):
     if user_id is None:
@@ -662,12 +671,16 @@ def profile():
     connection = get_db_connection()
 
     earned_badges = connection.execute("""
-        SELECT badges.name, badges.description, badges.icon, user_badges.earned_at
+        SELECT badges.code, badges.name, badges.description, badges.icon
         FROM user_badges
         JOIN badges ON user_badges.badge_code = badges.code
         WHERE user_badges.user_id = ?
         ORDER BY user_badges.earned_at DESC
     """, (current_user.id,)).fetchall()
+
+    earned_codes = {b["code"] for b in earned_badges}
+
+    all_badges = connection.execute("SELECT code, name, description, icon FROM badges").fetchall()
 
     my_reviews = connection.execute("""
         SELECT reviews.id, reviews.rating, reviews.comment, reviews.created_at,
@@ -678,9 +691,31 @@ def profile():
         ORDER BY reviews.created_at DESC
     """, (current_user.id,)).fetchall()
 
+    my_spots = connection.execute("""
+        SELECT study_spots.id, study_spots.name, study_spots.rating,
+               COUNT(likes.id) as like_count
+        FROM study_spots
+        LEFT JOIN likes ON likes.spot_id = study_spots.id
+        WHERE study_spots.submitted_by = ?
+        GROUP BY study_spots.id
+        ORDER BY study_spots.id DESC
+    """, (current_user.id,)).fetchall()
+
     connection.close()
 
-    return render_template('profile.html', badges=earned_badges, my_reviews=my_reviews)
+    next_tier = get_next_tier(current_user.points)
+    points_to_next = (next_tier - current_user.points) if next_tier else 0
+    progress_percent = min(100, int((current_user.points / next_tier) * 100)) if next_tier else 100
+
+    return render_template('profile.html',
+        badges=all_badges,
+        earned_codes=earned_codes,
+        my_reviews=my_reviews,
+        my_spots=my_spots,
+        next_tier=next_tier,
+        points_to_next=points_to_next,
+        progress_percent=progress_percent
+    )
 
 @app.context_processor
 def inject_pending_count():
