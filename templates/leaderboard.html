@@ -3,24 +3,58 @@
 {% block content %}
 
 <section class="leaderboard-page">
-    <h1>🏆 SlugSpots Leaderboard</h1>
-    <p>Top contributors, ranked by points earned from approved spots, reviews, and likes.</p>
+    <h1 class="leaderboard-title">Leaderboard</h1>
+    <p>Points from approved spots, reviews, and likes.</p>
 
     {% if top_users|length == 0 %}
     <div class="empty-state">
         <div class="empty-state-icon">🏆</div>
         <p>No current leaders yet — be the first to earn points!</p>
     </div>
-    {% endif %}
-    <div class="leaderboard-list">
-        {% for user in top_users %}
-        <div class="leaderboard-row">
-            <span class="leaderboard-rank">#{{ loop.index }}</span>
-            <span class="leaderboard-username">{{ user['username'] }}</span>
-            <span class="leaderboard-points">{{ user['points'] }} pts</span>
+    {% else %}
+
+        {% if top_users|length >= 1 %}
+        <div class="podium">
+            {% if top_users|length >= 2 %}
+            <div class="podium-card podium-second">
+                <div class="podium-medal">🥈</div>
+                <div class="podium-username">{{ top_users[1]['username'] }}</div>
+                <div class="podium-points">{{ top_users[1]['points'] }}</div>
+            </div>
+            {% endif %}
+
+            <div class="podium-card podium-first">
+                <div class="podium-medal">🥇</div>
+                <div class="podium-username">{{ top_users[0]['username'] }}</div>
+                <div class="podium-points">{{ top_users[0]['points'] }}</div>
+            </div>
+
+            {% if top_users|length >= 3 %}
+            <div class="podium-card podium-third">
+                <div class="podium-medal">🥉</div>
+                <div class="podium-username">{{ top_users[2]['username'] }}</div>
+                <div class="podium-points">{{ top_users[2]['points'] }}</div>
+            </div>
+            {% endif %}
         </div>
-        {% endfor %}
-    </div>
+        {% endif %}
+
+        {% if top_users|length > 3 %}
+        <div class="leaderboard-list">
+            {% for user in top_users[3:] %}
+            <div class="leaderboard-row">
+                <span class="leaderboard-rank">#{{ loop.index + 3 }}</span>
+                <span class="leaderboard-username">
+                    {{ user['username'] }}
+                    <span class="leaderboard-spot-count">{{ user['spot_count'] }} spot{{ 's' if user['spot_count'] != 1 else '' }}</span>
+                </span>
+                <span class="leaderboard-points">{{ user['points'] }} pts</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+    {% endif %}
 </section>
 
 {% endblock %}
