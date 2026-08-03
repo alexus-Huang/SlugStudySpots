@@ -665,6 +665,17 @@ def leaderboard():
 
     return render_template('leaderboard.html', top_users=top_users)
 
+def get_tier_progress(points):
+    previous_tier = 0
+    for tier in POINT_TIERS:
+        if points < tier:
+            segment_size = tier - previous_tier
+            progress_in_segment = points - previous_tier
+            percent = int((progress_in_segment / segment_size) * 100)
+            return tier, tier - points, percent
+        previous_tier = tier
+    return None, 0, 100  # past the highest tier
+
 @app.route("/profile")
 @login_required
 def profile():
@@ -703,9 +714,7 @@ def profile():
 
     connection.close()
 
-    next_tier = get_next_tier(current_user.points)
-    points_to_next = (next_tier - current_user.points) if next_tier else 0
-    progress_percent = min(100, int((current_user.points / next_tier) * 100)) if next_tier else 100
+    next_tier, points_to_next, progress_percent = get_tier_progress(current_user.points)
 
     return render_template('profile.html',
         badges=all_badges,
