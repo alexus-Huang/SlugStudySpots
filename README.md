@@ -4,7 +4,7 @@
 
 🔗 **Live site:** [slugstudy.pythonanywhere.com](https://slugstudy.pythonanywhere.com/)
 
-![SlugStudy map view](screenshot-map.png)
+![SlugStudy map view](screenshots/mainPage.jpg)
 
 ## Why I built this
 
@@ -25,8 +25,7 @@ UCSC has a ton of great study spots that never show up on any official campus ma
 
 ![Main Page](screenshots/mainPage.jpg)
 ![Leaderboard](screenshots/leaderboard.png)
-
-*(replace these with your actual screenshot filenames/paths)*
+![Profile](screenshots/profile.png)
 
 ## Tech stack
 
